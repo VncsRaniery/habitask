@@ -11,12 +11,8 @@ import {
   ArrowRight,
   Clock,
   AlertTriangle,
-  Plus,
   BarChart2,
   CheckCircle2,
-  Timer,
-  ListTodo,
-  Sparkles,
 } from "lucide-react"
 import Link from "next/link"
 import type { Task } from "@/types"
