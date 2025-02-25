@@ -5,7 +5,7 @@ import { DndProvider } from "react-dnd"
 import { HTML5Backend } from "react-dnd-html5-backend"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
-import { PlusIcon, Loader2 } from "lucide-react"
+import { PlusIcon } from "lucide-react"
 import { Toaster } from "sonner"
 import { toast } from "sonner"
 import TaskDialog from "./TaskDialog"
@@ -15,8 +15,8 @@ import TaskFilters, { type TaskFilters as TaskFiltersType } from "./TaskFilters"
 import { NotificationSheet } from "./NotificationSheet"
 import { ViewSelector } from "./ViewSelector"
 import { TableView } from "./TableView"
-/*import { CalendarView } from "./CalendarView"*/
 import { Card, CardContent } from "@/components/ui/card"
+import { TaskManagerSkeleton } from "./skeletons/TaskManagerSkeleton"
 import type { Task } from "@/types"
 
 export default function TaskManager() {
@@ -56,6 +56,7 @@ export default function TaskManager() {
     fetchTasks()
   }, [fetchTasks])
 
+  // Apply filters whenever tasks or filters change
   useEffect(() => {
     let filtered = tasks
 
@@ -91,14 +92,14 @@ export default function TaskManager() {
         body: JSON.stringify(task),
       })
       if (!response.ok) {
-        throw new Error("Falha em adionar tarefa")
+        throw new Error("Falha ao adicionar tarefa")
       }
       const newTask = await response.json()
       setTasks((prev) => [...prev, newTask])
       setIsDialogOpen(false)
       toast.success("Tarefa adicionada com sucesso")
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Falha em adionar tarefa"
+      const message = error instanceof Error ? error.message : "Falha ao adicionar tarefa"
       toast.error(message)
     }
   }
@@ -146,7 +147,7 @@ export default function TaskManager() {
     const taskToUpdate = tasks.find((task) => task.id === taskId)
     if (taskToUpdate && taskToUpdate.status !== newStatus) {
       await updateTask({ ...taskToUpdate, status: newStatus })
-      toast.success(`Sua tarefa agora está ${newStatus}`)
+      toast.success(`Tarefa agora está ${newStatus}`)
     }
   }
 
@@ -164,12 +165,16 @@ export default function TaskManager() {
     },
   }
 
+  if (isLoading) {
+    return <TaskManagerSkeleton />
+  }
+
   return (
     <DndProvider backend={HTML5Backend}>
       <div className="space-y-6">
         <header className="flex flex-col gap-6 md:gap-8">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <h1 className="text-3xl font-bold tracking-tight">Task Manager</h1>
+            <h1 className="text-3xl font-bold tracking-tight">Gerenciamento de tarefas</h1>
             <div className="flex items-center gap-2 w-full sm:w-auto">
               <NotificationSheet tasks={tasks} />
               <Button onClick={() => setIsDialogOpen(true)} className="flex-1 sm:flex-none" size="lg">
@@ -184,11 +189,7 @@ export default function TaskManager() {
         </header>
 
         <AnimatePresence mode="wait">
-          {isLoading ? (
-            <div className="flex justify-center items-center min-h-[400px]">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </div>
-          ) : error ? (
+          {error ? (
             <Card className="bg-destructive/10 border-destructive">
               <CardContent className="flex items-center justify-center p-6">
                 <p className="text-destructive text-center">{error}</p>
@@ -257,3 +258,4 @@ export default function TaskManager() {
     </DndProvider>
   )
 }
+

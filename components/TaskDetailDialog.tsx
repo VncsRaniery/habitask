@@ -61,7 +61,7 @@ export default function TaskDetailDialog({
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
+    return new Date(dateString).toLocaleDateString("pt-BR", {
       year: "numeric",
       month: "long",
       day: "numeric",
@@ -153,7 +153,7 @@ export default function TaskDetailDialog({
 
                 <div className="space-y-2">
                   <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                    Assigned To
+                    Atribuído a
                   </h3>
                   <div className="flex items-center space-x-2">
                     <User className="w-4 h-4 text-gray-400" />
@@ -225,7 +225,7 @@ export default function TaskDetailDialog({
               <div className="flex items-center space-x-2">
                 <Clock className="w-4 h-4 text-gray-400" />
                 <span className="text-sm text-gray-500 dark:text-gray-400">
-                  Tempo estimado: {task.estimatedHours} hours
+                  Tempo estimado: {task.estimatedHours} horas
                 </span>
               </div>
               <div className="flex items-center space-x-2 mt-2">

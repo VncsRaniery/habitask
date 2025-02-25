@@ -2,15 +2,12 @@
 
 import * as React from "react"
 import {
-  BookOpen,
-  Bot,
   ClipboardList,
   Command,
   House,
   LifeBuoy,
   PieChart,
   Send,
-  Settings2,
 } from "lucide-react"
 
 import { NavMain } from "@/components/sidebar/nav-main"
@@ -34,21 +31,6 @@ const data = {
       url: "/dashboard",
       icon: House,
     },
-    {
-      title: "Models",
-      url: "#",
-      icon: Bot,
-    },
-    {
-      title: "Documentation",
-      url: "#",
-      icon: BookOpen,
-    },
-    {
-      title: "Settings",
-      url: "#",
-      icon: Settings2,
-    },
   ],
   navSecondary: [
     {
@@ -70,7 +52,7 @@ const data = {
     },
     {
       name: "Análises e estatísitcas",
-      url: "#",
+      url: "/dashboard/tasks/analytics",
       icon: PieChart,
     },
   ],
