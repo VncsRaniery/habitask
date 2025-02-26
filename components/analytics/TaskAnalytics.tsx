@@ -199,12 +199,12 @@ export default function TaskAnalytics() {
                     <AlertCircle className="h-4 w-4" />
                     <AlertTitle>Risco de Burnout detectado</AlertTitle>
                     <AlertDescription className="mt-2 flex flex-col gap-2">
-                      <p>Você tem um grande número de tarefas atrasadas ou pendentes. Considerar:</p>
+                      <p>Você tem um grande número de tarefas atrasadas ou pendentes. Considere:</p>
                       <ul className="list-disc list-inside space-y-1 text-sm">
-                        <li>Revendo e priorizando suas tarefas</li>
+                        <li>Rever e priorizar suas tarefas</li>
                         <li>Dividir tarefas grandes em tarefas menores</li>
                         <li>Delegar tarefas sempre que possível</li>
-                        <li>Fazendo pausas regulares entre as tarefas</li>
+                        <li>Fazer pausas regulares entre suas tarefas</li>
                       </ul>
                     </AlertDescription>
                   </Alert>

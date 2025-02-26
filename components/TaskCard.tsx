@@ -108,7 +108,7 @@ const TaskCard = forwardRef<HTMLDivElement, TaskCardProps>(
               {task.estimatedHours > 0 && (
                 <div className="flex items-center gap-1">
                   <Clock className="h-3 w-3" />
-                  <span>{task.estimatedHours}horas</span>
+                  <span>{task.estimatedHours} horas</span>
                 </div>
               )}
             </div>

@@ -21,8 +21,8 @@ const Footer = () => {
             />
           </div>
           <p className="text-muted-foreground mt-4 text-sm text-start">
-            Task Manager é uma plataforma de organização e gerenciamento de tarefas e rotinas de
-            forma simplificada e prática para ajudar e axuliar em sua vida diária.
+            HabiTask é uma plataforma prática para organizar e gerenciar sua
+            rotina pessoal e profissional.
           </p>
           <span className="mt-4 text-muted-foreground text-sm flex items-center">
             Feito por @VncsRaniery
@@ -32,7 +32,7 @@ const Footer = () => {
         <div className="grid-cols-2 gap-8 grid mt-16 xl:col-span-2 xl:mt-0">
           <div className="md:grid md:grid-cols-2 md:gap-8">
             <div className="">
-              <h3 className="text-base font-medium">Task Manager</h3>
+              <h3 className="text-base font-medium">HabiTask</h3>
               <ul className="mt-4 text-sm text-muted-foreground">
                 <li className="mt-2">
                   <Link
