@@ -1,19 +1,22 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
 import {
   ClipboardList,
+  Cog,
   Command,
+  CircleCheck,
+  ChartLine,
   House,
-  LifeBuoy,
   PieChart,
   Send,
-} from "lucide-react"
+} from "lucide-react";
 
-import { NavMain } from "@/components/sidebar/nav-main"
-import { NavTasks } from "@/components/sidebar/nav-tasks"
-import { NavSecondary } from "@/components/sidebar/nav-secondary"
-import { NavUser } from "@/components/sidebar/nav-user"
+import { NavMain } from "@/components/sidebar/nav-main";
+import { NavTasks } from "@/components/sidebar/nav-tasks";
+import { NavRoutines } from "@/components/sidebar/nav-routine";
+import { NavSecondary } from "@/components/sidebar/nav-secondary";
+import { NavUser } from "@/components/sidebar/nav-user";
 import {
   Sidebar,
   SidebarContent,
@@ -22,7 +25,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
 
 const data = {
   navMain: [
@@ -34,9 +37,9 @@ const data = {
   ],
   navSecondary: [
     {
-      title: "Support",
+      title: "Configurações",
       url: "#",
-      icon: LifeBuoy,
+      icon: Cog,
     },
     {
       title: "Feedback",
@@ -56,7 +59,19 @@ const data = {
       icon: PieChart,
     },
   ],
-}
+  routines: [
+    {
+      name: "Gerenciar rotina",
+      url: "/dashboard/routines",
+      icon: CircleCheck,
+    },
+    {
+      name: "Análises das rotinas",
+      url: "/dashboard/routines/analytics",
+      icon: ChartLine,
+    },
+  ],
+};
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
@@ -81,11 +96,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent>
         <NavMain items={data.navMain} />
         <NavTasks tasks={data.tasks} />
+        <NavRoutines routines={data.routines} />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
         <NavUser />
       </SidebarFooter>
     </Sidebar>
-  )
+  );
 }

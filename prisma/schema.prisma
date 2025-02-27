@@ -78,3 +78,13 @@ model Task {
     userId         String
     user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
+
+model RoutineItem {
+  id          String   @id @default(cuid())
+  title       String
+  dayOfWeek   Int      // 0-6 for Sunday-Saturday
+  time        String
+  completed   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
