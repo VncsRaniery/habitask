@@ -66,7 +66,6 @@ export function RoutineDialog({ isOpen, onClose, onSubmit, initialData }: Routin
 
   const addRoutine = () => {
     if (routines.length < 20) {
-      // Add reasonable limit
       setRoutines([...routines, { title: "", time: "" }])
     }
   }
@@ -90,7 +89,7 @@ export function RoutineDialog({ isOpen, onClose, onSubmit, initialData }: Routin
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] flex flex-col">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">{initialData ? "Edit Routine" : "Add Routines"}</DialogTitle>
+          <DialogTitle className="flex items-center gap-2">{initialData ? "Editar item da sua rotina" : "Adicionar Item a sua rotina"}</DialogTitle>
           <DialogDescription>
             {initialData ? "Edite os detalhes da sua rotina abaixo" : "Adicione uma ou mais rotinas para o dia selecionado"}
           </DialogDescription>
@@ -100,7 +99,7 @@ export function RoutineDialog({ isOpen, onClose, onSubmit, initialData }: Routin
           <div className="space-y-2">
             <Label htmlFor="day" className="flex items-center gap-2">
               <CalendarDays className="h-4 w-4" />
-              Day of Week
+              Dia da semana
             </Label>
             <Select value={selectedDay} onValueChange={setSelectedDay}>
               <SelectTrigger>
@@ -157,7 +156,7 @@ export function RoutineDialog({ isOpen, onClose, onSubmit, initialData }: Routin
                     <div className="space-y-2">
                       <Label htmlFor={`time-${index}`} className="flex items-center gap-2">
                         <Clock className="h-4 w-4" />
-                        Time
+                        Horário
                       </Label>
                       <Input
                         id={`time-${index}`}
@@ -182,7 +181,7 @@ export function RoutineDialog({ isOpen, onClose, onSubmit, initialData }: Routin
               disabled={isSubmitting}
             >
               <Plus className="mr-2 h-4 w-4" />
-              Add Another
+              Adicionar outro item
             </Button>
             {routines.length > 1 && (
               <Button
@@ -193,13 +192,10 @@ export function RoutineDialog({ isOpen, onClose, onSubmit, initialData }: Routin
                 disabled={isSubmitting}
               >
                 <ArrowDownUp className="mr-2 h-4 w-4" />
-                Classificar por hora
+                Ordenar por horário
               </Button>
             )}
             <div className="flex-1 sm:flex-none flex justify-end gap-2">
-              <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
-                Cancelar
-              </Button>
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting ? "Salvando..." : initialData ? "Salvar alterações" : "Adicionar item(s)"}
               </Button>

@@ -180,10 +180,10 @@ export default function RoutineManager() {
       }
 
       setRoutines((prev) => prev.filter((r) => r.id !== id));
-      toast.success("Routine deleted successfully");
+      toast.success("Item de rotina Deletado com sucesso!");
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : "Falha em deletar item de rotina";
+        error instanceof Error ? error.message : "Falha ao tentar deletar item de rotina";
       toast.error(message);
     }
   };

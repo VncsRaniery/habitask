@@ -21,7 +21,7 @@ export function TimeCard() {
     return date.toLocaleTimeString("pt-BR", {
       hour: "2-digit",
       minute: "2-digit",
-      hour12: true,
+      hour12: false,
     })
   }
 

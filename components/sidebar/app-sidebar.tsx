@@ -50,24 +50,24 @@ const data = {
   tasks: [
     {
       name: "Gerenciar tarefas",
-      url: "/dashboard/tasks",
+      url: "/dashboard/tarefas",
       icon: ClipboardList,
     },
     {
       name: "Análises e estatísitcas",
-      url: "/dashboard/tasks/analytics",
+      url: "/dashboard/tarefas/analises",
       icon: PieChart,
     },
   ],
   routines: [
     {
       name: "Gerenciar rotina",
-      url: "/dashboard/routines",
+      url: "/dashboard/rotinas",
       icon: CircleCheck,
     },
     {
       name: "Análises das rotinas",
-      url: "/dashboard/routines/analytics",
+      url: "/dashboard/rotinas/analises",
       icon: ChartLine,
     },
   ],

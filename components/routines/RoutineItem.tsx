@@ -35,10 +35,10 @@ export function RoutineItem({ routine, onEdit, onDelete, onToggleComplete }: Rou
       const [hours, minutes] = time.split(":")
       const date = new Date()
       date.setHours(Number.parseInt(hours), Number.parseInt(minutes))
-      return date.toLocaleTimeString("en-US", {
+      return date.toLocaleTimeString("pt-BR", {
         hour: "numeric",
         minute: "2-digit",
-        hour12: true,
+        hour12: false,
       })
     } catch {
       return time
@@ -76,13 +76,13 @@ export function RoutineItem({ routine, onEdit, onDelete, onToggleComplete }: Rou
                     className={`transition-transform data-[state=checked]:scale-110
                     ${!isToday ? "cursor-not-allowed opacity-50" : ""}`}
                     disabled={!isToday}
-                    aria-label={isToday ? "Toggle routine completion" : "Can only complete routines for today"}
+                    aria-label={isToday ? "Alternar conclusão da rotina" : "Você só pode completar rotinas de hoje"}
                   />
                 </div>
               </TooltipTrigger>
               {!isToday && (
                 <TooltipContent>
-                  <p>You can only mark routines as complete on their scheduled day</p>
+                  <p>Você só pode marcar rotinas como concluídas no dia agendado</p>
                 </TooltipContent>
               )}
             </Tooltip>
@@ -132,7 +132,7 @@ export function RoutineItem({ routine, onEdit, onDelete, onToggleComplete }: Rou
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">
               Deletar
             </AlertDialogAction>
