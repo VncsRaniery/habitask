@@ -13,10 +13,13 @@ import {
   AlertTriangle,
   BarChart2,
   CheckCircle2,
+  ListChecks,
+  Timer,
 } from "lucide-react"
 import Link from "next/link"
 import type { Task } from "@/types"
 import { Progress } from "@/components/ui/progress"
+import type { RoutineItem } from "./routines/RoutineManager"
 import { WelcomeSkeleton } from "./skeletons/WelcomeSkeleton"
 
 export default function Welcome() {
@@ -29,13 +32,18 @@ export default function Welcome() {
     upcoming: 0,
   })
   const [isLoading, setIsLoading] = useState(true)
+  const [routines, setRoutines] = useState<RoutineItem[]>([])
 
   useEffect(() => {
-    const fetchTasks = async () => {
+    const fetchData = async () => {
       try {
-        const response = await fetch("/api/tasks")
-        if (!response.ok) throw new Error("Failed to fetch tasks")
-        const tasks = await response.json()
+        const [tasksResponse, routinesResponse] = await Promise.all([fetch("/api/tasks"), fetch("/api/routines")])
+
+        if (!tasksResponse.ok) throw new Error("Falha ao buscar tarefas")
+        if (!routinesResponse.ok) throw new Error("Falha ao buscar rotinas")
+
+        const tasks = await tasksResponse.json()
+        const routines = await routinesResponse.json()
 
         // Filter and sort upcoming tasks
         const now = new Date()
@@ -48,6 +56,7 @@ export default function Welcome() {
           .slice(0, 3)
 
         setUpcomingTasks(upcoming)
+        setRoutines(routines)
 
         // Calculate task statistics
         const completed = tasks.filter((task: Task) => task.status === "Feita").length
@@ -63,13 +72,13 @@ export default function Welcome() {
           upcoming: upcomingCount,
         })
       } catch (error) {
-        console.error("Error fetching tasks:", error)
+        console.error("Erro ao buscar dados:", error)
       } finally {
         setIsLoading(false)
       }
     }
 
-    fetchTasks()
+    fetchData()
   }, [])
 
   const containerVariants = {
@@ -145,9 +154,14 @@ export default function Welcome() {
             criando sua primeira tarefa ou verificando seus próximos prazos.
             </p>
             <div className="flex flex-wrap justify-center gap-4">
-              <Link href="/tasks">
+              <Link href="/dashboard/tasks">
                 <Button size="lg" className="gap-2">
                   Ir para tarefas <ArrowRight className="h-4 w-4" />
+                </Button>
+              </Link>
+              <Link href="/dashboard/routines">
+                <Button size="lg" variant="outline" className="gap-2">
+                  <ListChecks className="h-4 w-4" /> View Routines
                 </Button>
               </Link>
             </div>
@@ -260,6 +274,77 @@ export default function Welcome() {
                 <Link href="/tasks">
                   <Button variant="ghost" className="gap-2">
                     Visualizar todas as tarefas <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </Link>
+              </CardFooter>
+            </Card>
+          </motion.div>
+
+          <motion.div variants={itemVariants}>
+            <Card className="backdrop-blur-sm bg-card/50">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <ListChecks className="h-5 w-5" />
+                  Rotinas para hoje
+                </CardTitle>
+                <CardDescription>
+                Suas rotinas agendadas para {new Date().toLocaleDateString("pt-BR", { weekday: "long" })}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {isLoading ? (
+                  <div className="space-y-4">
+                    {[...Array(3)].map((_, i) => (
+                      <div key={i} className="h-24 rounded-lg bg-muted animate-pulse" />
+                    ))}
+                  </div>
+                ) : routines.filter((r) => r.dayOfWeek === new Date().getDay()).length === 0 ? (
+                  <div className="text-center py-12">
+                    <Timer className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                    <p className="text-lg font-medium text-muted-foreground">Sem rotinas para hoje</p>
+                    <p className="text-sm text-muted-foreground mt-1">Adicione algumas rotinas para começar</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {routines
+                      .filter((r) => r.dayOfWeek === new Date().getDay())
+                      .sort((a, b) => a.time.localeCompare(b.time))
+                      .map((routine, index) => (
+                        <motion.div
+                          key={routine.id}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: index * 0.1 }}
+                        >
+                          <Card>
+                            <CardContent className="p-4">
+                              <div className="flex items-start justify-between gap-4">
+                                <div className="space-y-1">
+                                  <h3 className="font-medium leading-none">{routine.title}</h3>
+                                  <p className="text-sm text-muted-foreground">
+                                    Scheduled for{" "}
+                                    {new Date(`2000-01-01T${routine.time}`).toLocaleTimeString("en-US", {
+                                      hour: "numeric",
+                                      minute: "2-digit",
+                                      hour12: true,
+                                    })}
+                                  </p>
+                                </div>
+                                <Badge variant={routine.completed ? "default" : "secondary"}>
+                                  {routine.completed ? "Completas" : "Pendentes"}
+                                </Badge>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        </motion.div>
+                      ))}
+                  </div>
+                )}
+              </CardContent>
+              <CardFooter className="flex justify-end pt-0">
+                <Link href="/routines">
+                  <Button variant="ghost" className="gap-2">
+                    Visualizar todas as rotinas <ArrowRight className="h-4 w-4" />
                   </Button>
                 </Link>
               </CardFooter>

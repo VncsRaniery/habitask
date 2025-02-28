@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 function page() {
   return (
-    <div>page</div>
+    <div>Em breve...</div>
   )
 }
 
