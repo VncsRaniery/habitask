@@ -24,11 +24,11 @@ export interface RoutineItem {
 
 const DAYS = [
   "Domingo",
-  "Segunda-feira",
-  "Terça-feira",
-  "Quarta-feira",
-  "Quinta-feira",
-  "Sexta-feira",
+  "Segunda-Feira",
+  "Terça-Feira",
+  "Quarta-Feira",
+  "Quinta-Feira",
+  "Sexta-Feira",
   "Sábado",
 ];
 
@@ -48,13 +48,13 @@ export default function RoutineManager() {
   const fetchRoutines = useCallback(async () => {
     try {
       const response = await fetch("/api/routines");
-      if (!response.ok) throw new Error("Falha em buscar item(s)");
+      if (!response.ok) throw new Error("Failed to fetch routines");
       const data = await response.json();
       setRoutines(data);
       setError(null);
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : "Falha em carregar item(s)";
+        error instanceof Error ? error.message : "Failed to load routines";
       setError(message);
       toast.error(message);
     } finally {
@@ -65,11 +65,26 @@ export default function RoutineManager() {
   const checkAndResetRoutines = useCallback(async () => {
     const now = new Date();
     const lastReset = new Date(lastResetDate);
+
     if (
-      now.getDay() === 0 &&
+      now.getDay() === 0 && // Domingo
       now.getTime() - lastReset.getTime() > 6 * 24 * 60 * 60 * 1000
     ) {
       try {
+        // Create history entries for all routines before resetting
+        const historyPromises = routines.map((routine) =>
+          fetch("/api/routines/history", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              routineId: routine.id,
+              completed: routine.completed,
+              date: now.toISOString(),
+              dayOfWeek: routine.dayOfWeek,
+            }),
+          })
+        );
+
         // Reset all routines
         const resetPromises = routines.map((routine) => {
           if (routine.completed) {
@@ -81,21 +96,24 @@ export default function RoutineManager() {
           }
           return Promise.resolve();
         });
-        await Promise.all(resetPromises);
+
+        await Promise.all([...historyPromises, ...resetPromises]);
+
+        // Update local state
         setRoutines((prev) =>
           prev.map((routine) => ({ ...routine, completed: false }))
         );
+
+        // Update last reset date
         setLastResetDate(now.toISOString());
 
         toast.success("As rotinas semanais foram redefinidas", {
           description:
-            "ATodas as rotinas foram marcadas como incompletas para a nova semana.",
+            "Todas as rotinas foram marcadas como incompletas para a nova semana.",
         });
       } catch (error) {
         const message =
-          error instanceof Error
-            ? error.message
-            : "Falha ao resetar seu(s) item(s) da rotina";
+          error instanceof Error ? error.message : "Falha em resertar item(s)";
         toast.error("Falha em resetar item(s)", {
           description: message,
         });
@@ -123,7 +141,7 @@ export default function RoutineManager() {
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || "Falha ao adicionar item(s)");
+        throw new Error(error.error || "Falha em adicionar item(s) a rotina");
       }
 
       const newRoutines = await response.json();
@@ -134,12 +152,12 @@ export default function RoutineManager() {
       toast.success(
         `${
           Array.isArray(newRoutines) ? newRoutines.length : 1
-        } item(s) adicionado(s) com sucesso`
+        } items(s) Adicionado(s) com sucesso`
       );
       return true;
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : "Falha ao adicionar item(s)";
+        error instanceof Error ? error.message : "Falha em adicionar item(s)";
       toast.error(message);
       return false;
     }
@@ -155,18 +173,18 @@ export default function RoutineManager() {
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || "Failed to update routine");
+        throw new Error(error.error || "Falha ao editar item");
       }
 
       const updatedRoutine = await response.json();
       setRoutines((prev) =>
         prev.map((r) => (r.id === updatedRoutine.id ? updatedRoutine : r))
       );
-      toast.success("Item atualizado com sucesso");
+      toast.success("Item da rotina editado com sucesso");
       return true;
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : "Falha ao atualizar item";
+        error instanceof Error ? error.message : "Falha ao editar item";
       toast.error(message);
       return false;
     }
@@ -180,7 +198,7 @@ export default function RoutineManager() {
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || "Falha ao deletar item da rotina");
+        throw new Error(error.error || "Falha em deletar item da rotina");
       }
 
       setRoutines((prev) => prev.filter((r) => r.id !== id));
@@ -204,34 +222,48 @@ export default function RoutineManager() {
     );
 
     try {
-      const response = await fetch(`/api/routines/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...routine, completed: !routine.completed }),
-      });
+      const [routineResponse, historyResponse] = await Promise.all([
+        fetch(`/api/routines/${id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...routine, completed: !routine.completed }),
+        }),
+        fetch("/api/routines/history", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            routineId: id,
+            completed: !routine.completed,
+            date: new Date().toISOString(),
+            dayOfWeek: routine.dayOfWeek,
+          }),
+        }),
+      ]);
 
-      if (!response.ok) {
-        // Revert on error
-        setRoutines((prev) =>
-          prev.map((r) =>
-            r.id === id ? { ...r, completed: routine.completed } : r
-          )
-        );
-        throw new Error("Failed to update routine");
+      if (!routineResponse.ok || !historyResponse.ok) {
+        throw new Error("Falha ao editar item da rotina");
       }
 
-      const updatedRoutine = await response.json();
+      const updatedRoutine = await routineResponse.json();
       setRoutines((prev) =>
         prev.map((r) => (r.id === updatedRoutine.id ? updatedRoutine : r))
       );
       toast.success(
         `Rotina marcada como ${
-          updatedRoutine.completed ? "Completa" : "Incompleta"
+          updatedRoutine.completed ? "completed" : "incomplete"
         }`
       );
     } catch (error) {
+      // Revert on error
+      setRoutines((prev) =>
+        prev.map((r) =>
+          r.id === id ? { ...r, completed: routine.completed } : r
+        )
+      );
       const message =
-        error instanceof Error ? error.message : "Failed to update routine";
+        error instanceof Error
+          ? error.message
+          : "Falha ao editar item da rotina";
       toast.error(message);
     }
   };

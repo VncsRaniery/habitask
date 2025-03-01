@@ -6,7 +6,6 @@ import { HTML5Backend } from "react-dnd-html5-backend"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { PlusIcon } from "lucide-react"
-import { Toaster } from "sonner"
 import { toast } from "sonner"
 import TaskDialog from "./TaskDialog"
 import TaskColumn from "./TaskColumn"
@@ -254,7 +253,6 @@ export default function TaskManager() {
           />
         )}
       </div>
-      <Toaster position="bottom-right" className="sm:pb-4 sm:pr-4" />
     </DndProvider>
   )
 }
