@@ -6,40 +6,6 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 export function calculateStreaks(history: RoutineHistory[]): StreakData {
   const sortedHistory = [...history].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
 
@@ -48,7 +14,6 @@ export function calculateStreaks(history: RoutineHistory[]): StreakData {
   let totalCompletions = 0
   const totalRoutines = history.length
 
-  // Calculate current streak
   let currentDate = new Date()
   for (const entry of sortedHistory) {
     const entryDate = new Date(entry.date)
@@ -61,8 +26,7 @@ export function calculateStreaks(history: RoutineHistory[]): StreakData {
       }
     }
   }
-
-  // Calculate longest streak and total completions
+  
   let tempStreak = 0
   let lastDate: Date | null = null
 

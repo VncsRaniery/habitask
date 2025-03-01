@@ -2,6 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { format, eachDayOfInterval, subDays } from "date-fns"
+import { ptBR } from "date-fns/locale";
 import { motion } from "framer-motion"
 import type { RoutineHistory } from "@/types"
 
@@ -17,7 +18,7 @@ export function CompletionHeatmap({ history, days = 90 }: CompletionHeatmapProps
 
   const completionsByDate = history.reduce(
     (acc, entry) => {
-      const date = format(new Date(entry.date), "yyyy-MM-dd")
+      const date = format(new Date(entry.date), "dd/MM/yyyy", { locale: ptBR })
       if (!acc[date]) {
         acc[date] = { total: 0, completed: 0 }
       }
@@ -46,7 +47,7 @@ export function CompletionHeatmap({ history, days = 90 }: CompletionHeatmapProps
       <CardContent className="pt-6">
         <div className="grid grid-cols-[auto_1fr] gap-6">
           <div className="space-y-2 text-sm text-muted-foreground">
-            {["Mon", "Wed", "Fri", "Sun"].map((day) => (
+            {["Seg", "Qua", "Sex", "Dom"].map((day) => (
               <div key={day} className="h-8 flex items-center">
                 {day}
               </div>
@@ -54,7 +55,7 @@ export function CompletionHeatmap({ history, days = 90 }: CompletionHeatmapProps
           </div>
           <div className="grid grid-cols-[repeat(auto-fill,20px)] gap-1">
             {dateRange.map((date, i) => {
-              const key = format(date, "yyyy-MM-dd")
+              const key = format(date, "dd/MM/yyyy", { locale: ptBR })
               const data = completionsByDate[key] || { total: 0, completed: 0 }
               const completion = data.total > 0 ? data.completed / data.total : 0
 
@@ -74,9 +75,9 @@ export function CompletionHeatmap({ history, days = 90 }: CompletionHeatmapProps
                 >
                   <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity z-50">
                     <div className="bg-popover text-popover-foreground text-xs rounded-md px-2 py-1 whitespace-nowrap shadow-lg">
-                      <div>{format(date, "MMM d, yyyy")}</div>
+                      <div>{format(date, "d MMM, yyyy", { locale: ptBR })}</div>
                       <div>
-                        {data.completed} of {data.total} completed
+                        {data.completed} de {data.total} concluídas
                         {data.total > 0 && ` (${Math.round(completion * 100)}%)`}
                       </div>
                     </div>

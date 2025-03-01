@@ -31,7 +31,7 @@ export function TimeDistributionChart({ data }: TimeDistributionChartProps) {
               <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
               <XAxis
                 dataKey="hour"
-                tickFormatter={(hour) => format(new Date().setHours(hour), "ha")}
+                tickFormatter={(hour) => format(new Date().setHours(hour), "HH")}
                 stroke="#888888"
                 fontSize={12}
               />
@@ -44,18 +44,18 @@ export function TimeDistributionChart({ data }: TimeDistributionChartProps) {
                       <div className="rounded-lg border bg-background p-2 shadow-md">
                         <div className="grid gap-2">
                           <div className="flex flex-col">
-                            <span className="text-[0.70rem] uppercase text-muted-foreground">Time</span>
-                            <span className="font-bold">{format(new Date().setHours(data.hour), "h:00 a")}</span>
+                            <span className="text-[0.70rem] uppercase text-muted-foreground">Tempo</span>
+                            <span className="font-bold">{format(new Date().setHours(data.hour), "HH:00")}</span>
                           </div>
                           <div className="grid grid-cols-2 gap-2">
                             <div className="flex flex-col">
-                              <span className="text-[0.70rem] uppercase text-muted-foreground">Completion Rate</span>
+                              <span className="text-[0.70rem] uppercase text-muted-foreground">Taxa de conclusão</span>
                               <span className="font-bold">{Math.round(data.rate)}%</span>
                             </div>
                             <div className="flex flex-col">
-                              <span className="text-[0.70rem] uppercase text-muted-foreground">Completions</span>
+                              <span className="text-[0.70rem] uppercase text-muted-foreground">Concluídos</span>
                               <span className="font-bold">
-                                {data.completions} of {data.total}
+                                {data.completions} de {data.total}
                               </span>
                             </div>
                           </div>

@@ -94,7 +94,6 @@ model RoutineItem {
     user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-
 model RoutineHistory {
   id          String   @id @default(cuid())
   routineId   String

@@ -7,6 +7,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Progress } from "@/components/ui/progress"
 import { format, subDays, eachDayOfInterval } from "date-fns"
+import { ptBR } from "date-fns/locale"
 import {
   BarChart,
   Bar,
@@ -588,7 +589,7 @@ export default function TaskAnalytics() {
                           <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                           <XAxis
                             dataKey="date"
-                            tickFormatter={(value) => format(new Date(value), "MMM dd")}
+                            tickFormatter={(value) => format(new Date(value), "MMM dd", { locale: ptBR })}
                             stroke="#888888"
                           />
                           <YAxis stroke="#888888" />
@@ -601,7 +602,7 @@ export default function TaskAnalytics() {
                                       <div className="flex flex-col">
                                         <span className="text-[0.70rem] uppercase text-muted-foreground">Data</span>
                                         <span className="font-bold text-sm">
-                                          {format(new Date(label), "MMM dd, yyyy")}
+                                          {format(new Date(label), "MMM dd, yyyy", { locale: ptBR })}
                                         </span>
                                       </div>
                                       <div className="grid grid-cols-2 gap-4">

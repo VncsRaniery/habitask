@@ -84,7 +84,7 @@ export function DayCard({
           <div className="space-y-1">
             <div className="flex justify-between text-sm text-muted-foreground">
               <span>
-                {completedCount} of {routines.length} completadas
+                {completedCount} de {routines.length} completadas
               </span>
               <span>{Math.round(progress)}%</span>
             </div>

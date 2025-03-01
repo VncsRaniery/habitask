@@ -1,7 +1,7 @@
 "use client";
 
 import { signOut, useSession } from "next-auth/react";
-import { BadgeCheck, ChevronsUpDown, LogOut } from "lucide-react";
+import { ChevronsUpDown, CircleUser, LogOut } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -20,6 +20,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
+import { Button } from "../ui/button";
 
 export function NavUser() {
   const { data: session } = useSession();
@@ -39,7 +40,10 @@ export function NavUser() {
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <Avatar className="h-8 w-8 rounded-lg">
-                <AvatarImage src={user.image ?? undefined} alt={user.name ?? "User"} />
+                <AvatarImage
+                  src={user.image ?? undefined}
+                  alt={user.name ?? "User"}
+                />
                 <AvatarFallback className="rounded-lg">
                   {user.name?.charAt(0).toUpperCase() ?? "U"}
                 </AvatarFallback>
@@ -64,7 +68,10 @@ export function NavUser() {
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarImage src={user.image ?? undefined} alt={user.name ?? "User"} />
+                  <AvatarImage
+                    src={user.image ?? undefined}
+                    alt={user.name ?? "User"}
+                  />
                   <AvatarFallback className="rounded-lg">
                     {user.name?.charAt(0).toUpperCase() ?? "U"}
                   </AvatarFallback>
@@ -81,19 +88,23 @@ export function NavUser() {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <Link href="/dashboard/profile">
+              <Link href="/dashboard/perfil">
                 <DropdownMenuItem>
-                  <BadgeCheck />
+                  <CircleUser />
                   Meu Perfil
                 </DropdownMenuItem>
               </Link>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
-              <button onClick={() => signOut({ callbackUrl: "/" })}>
+              <Button
+                variant="ghost"
+                onClick={() => signOut({ callbackUrl: "/" })}
+                className="flex items-center gap-2"
+              >
                 <LogOut />
                 Sair
-              </button>
+              </Button>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

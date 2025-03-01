@@ -48,13 +48,13 @@ export default function RoutineManager() {
   const fetchRoutines = useCallback(async () => {
     try {
       const response = await fetch("/api/routines");
-      if (!response.ok) throw new Error("Failed to fetch routines");
+      if (!response.ok) throw new Error("Falha em carregar rotinas");
       const data = await response.json();
       setRoutines(data);
       setError(null);
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : "Failed to load routines";
+        error instanceof Error ? error.message : "Falha em carregar rotinas";
       setError(message);
       toast.error(message);
     } finally {
@@ -71,7 +71,6 @@ export default function RoutineManager() {
       now.getTime() - lastReset.getTime() > 6 * 24 * 60 * 60 * 1000
     ) {
       try {
-        // Create history entries for all routines before resetting
         const historyPromises = routines.map((routine) =>
           fetch("/api/routines/history", {
             method: "POST",
@@ -98,13 +97,9 @@ export default function RoutineManager() {
         });
 
         await Promise.all([...historyPromises, ...resetPromises]);
-
-        // Update local state
         setRoutines((prev) =>
           prev.map((routine) => ({ ...routine, completed: false }))
         );
-
-        // Update last reset date
         setLastResetDate(now.toISOString());
 
         toast.success("As rotinas semanais foram redefinidas", {
@@ -250,7 +245,7 @@ export default function RoutineManager() {
       );
       toast.success(
         `Rotina marcada como ${
-          updatedRoutine.completed ? "completed" : "incomplete"
+          updatedRoutine.completed ? "concluída" : "incompleta"
         }`
       );
     } catch (error) {
