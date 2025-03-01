@@ -1,27 +1,38 @@
-"use client"
+"use client";
 
-import { motion } from "framer-motion"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Progress } from "@/components/ui/progress"
-import { Plus, Calendar } from "lucide-react"
-import { RoutineItem } from "./RoutineItem"
-import type { RoutineItem as RoutineItemType } from "./RoutineManager"
+import { motion } from "framer-motion";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Progress } from "@/components/ui/progress";
+import { Plus, Calendar } from "lucide-react";
+import { RoutineItem } from "./RoutineItem";
+import type { RoutineItem as RoutineItemType } from "./RoutineManager";
 
 interface DayCardProps {
-  day: string
-  dayIndex: number
-  routines: RoutineItemType[]
-  onEdit: (routine: RoutineItemType) => void
-  onDelete: (id: string) => void
-  onToggleComplete: (id: string) => void
+  day: string;
+  dayIndex: number;
+  routines: RoutineItemType[];
+  onEdit: (routine: RoutineItemType) => void;
+  onDelete: (id: string) => void;
+  onToggleComplete: (id: string) => void;
+  setIsDialogOpen: (open: boolean) => void;
 }
 
-export function DayCard({ day, dayIndex, routines, onEdit, onDelete, onToggleComplete }: DayCardProps) {
-  const isToday = new Date().getDay() === dayIndex
-  const completedCount = routines.filter((r) => r.completed).length
-  const progress = routines.length ? (completedCount / routines.length) * 100 : 0
+export function DayCard({
+  day,
+  dayIndex,
+  routines,
+  onEdit,
+  onDelete,
+  onToggleComplete,
+  setIsDialogOpen,
+}: DayCardProps) {
+  const isToday = new Date().getDay() === dayIndex;
+  const completedCount = routines.filter((r) => r.completed).length;
+  const progress = routines.length
+    ? (completedCount / routines.length) * 100
+    : 0;
 
   const cardVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -32,7 +43,7 @@ export function DayCard({ day, dayIndex, routines, onEdit, onDelete, onToggleCom
         duration: 0.3,
       },
     },
-  }
+  };
 
   return (
     <motion.div variants={cardVariants}>
@@ -45,37 +56,35 @@ export function DayCard({ day, dayIndex, routines, onEdit, onDelete, onToggleCom
         <CardHeader className="relative space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Calendar className={`h-5 w-5 ${isToday ? "text-primary" : "text-muted-foreground"}`} />
+              <Calendar
+                className={`h-5 w-5 ${
+                  isToday ? "text-primary" : "text-muted-foreground"
+                }`}
+              />
               <CardTitle className="text-xl font-semibold">
                 {day}
-                {isToday && <span className="ml-2 text-sm font-normal text-primary">(Hoje)</span>}
+                {isToday && (
+                  <span className="ml-2 text-sm font-normal text-primary">
+                    (Hoje)
+                  </span>
+                )}
               </CardTitle>
             </div>
             <Button
               variant="ghost"
               size="sm"
               className="h-8 w-8 p-0"
-              onClick={() =>
-                onEdit({
-                  id: "",
-                  title: "",
-                  dayOfWeek: dayIndex,
-                  time: "",
-                  completed: false,
-                  createdAt: "",
-                  updatedAt: "",
-                })
-              }
+              onClick={() => setIsDialogOpen(true)}
             >
               <Plus className="h-4 w-4" />
-              <span className="sr-only">Adicionar item</span>
+              <span className="sr-only">Adicionar item(s) a sua rotina</span>
             </Button>
           </div>
 
           <div className="space-y-1">
             <div className="flex justify-between text-sm text-muted-foreground">
               <span>
-                {completedCount} de {routines.length} concluídas
+                {completedCount} of {routines.length} completadas
               </span>
               <span>{Math.round(progress)}%</span>
             </div>
@@ -91,8 +100,12 @@ export function DayCard({ day, dayIndex, routines, onEdit, onDelete, onToggleCom
                 animate={{ opacity: 1 }}
                 className="flex flex-col items-center justify-center h-full min-h-[200px] text-center p-4"
               >
-                <p className="text-sm text-muted-foreground">Sem itens para {day}</p>
-                <p className="text-xs text-muted-foreground mt-1">Click em + para adicionar um novo item</p>
+                <p className="text-sm text-muted-foreground">
+                  Sem rotinas para {day}
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Click em + para adicionar novos itens
+                </p>
               </motion.div>
             ) : (
               <div className="space-y-2 pb-4">
@@ -113,5 +126,5 @@ export function DayCard({ day, dayIndex, routines, onEdit, onDelete, onToggleCom
         </CardContent>
       </Card>
     </motion.div>
-  )
+  );
 }

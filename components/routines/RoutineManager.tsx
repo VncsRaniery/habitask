@@ -1,8 +1,6 @@
 "use client";
 
-import Link from "next/link";
 import { useState, useEffect, useCallback } from "react";
-import { useLocalStorage } from "@/hooks/use-local-storage";
 import { motion } from "framer-motion";
 import { Plus, BarChart2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -11,6 +9,8 @@ import { DayCard } from "./DayCard";
 import { TimeCard } from "./TimeCard";
 import { RoutineDialog } from "./RoutineDialog";
 import { RoutineManagerSkeleton } from "@/components/skeletons/RoutineManagerSkeleton";
+import Link from "next/link";
+import { useLocalStorage } from "@/hooks/use-local-storage";
 
 export interface RoutineItem {
   id: string;
@@ -45,14 +45,32 @@ export default function RoutineManager() {
     new Date().toISOString()
   );
 
+  const fetchRoutines = useCallback(async () => {
+    try {
+      const response = await fetch("/api/routines");
+      if (!response.ok) throw new Error("Falha em buscar item(s)");
+      const data = await response.json();
+      setRoutines(data);
+      setError(null);
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Falha em carregar item(s)";
+      setError(message);
+      toast.error(message);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
   const checkAndResetRoutines = useCallback(async () => {
     const now = new Date();
     const lastReset = new Date(lastResetDate);
     if (
-      now.getDay() === 0 && // Sunday
+      now.getDay() === 0 &&
       now.getTime() - lastReset.getTime() > 6 * 24 * 60 * 60 * 1000
     ) {
       try {
+        // Reset all routines
         const resetPromises = routines.map((routine) => {
           if (routine.completed) {
             return fetch(`/api/routines/${routine.id}`, {
@@ -68,36 +86,22 @@ export default function RoutineManager() {
           prev.map((routine) => ({ ...routine, completed: false }))
         );
         setLastResetDate(now.toISOString());
-        toast.success("Os itens das rotinas semanais foram redefinidas", {
+
+        toast.success("As rotinas semanais foram redefinidas", {
           description:
-            "Todas as rotinas foram marcadas como incompletas para a nova semana.",
+            "ATodas as rotinas foram marcadas como incompletas para a nova semana.",
         });
       } catch (error) {
         const message =
-          error instanceof Error ? error.message : "Falha em resetar itens das rotinas";
-        toast.error("Falha em resetar itens das rotinas", {
+          error instanceof Error
+            ? error.message
+            : "Falha ao resetar seu(s) item(s) da rotina";
+        toast.error("Falha em resetar item(s)", {
           description: message,
         });
       }
     }
   }, [lastResetDate, routines, setLastResetDate]);
-
-  const fetchRoutines = useCallback(async () => {
-    try {
-      const response = await fetch("/api/routines");
-      if (!response.ok) throw new Error("Failed to fetch routines");
-      const data = await response.json();
-      setRoutines(data);
-      setError(null);
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Failed to load routines";
-      setError(message);
-      toast.error(message);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
 
   useEffect(() => {
     fetchRoutines();
@@ -119,7 +123,7 @@ export default function RoutineManager() {
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || "Falha em adicionar item de rotina");
+        throw new Error(error.error || "Falha ao adicionar item(s)");
       }
 
       const newRoutines = await response.json();
@@ -130,12 +134,12 @@ export default function RoutineManager() {
       toast.success(
         `${
           Array.isArray(newRoutines) ? newRoutines.length : 1
-        } Item(s) criado(s) com sucesso`
+        } item(s) adicionado(s) com sucesso`
       );
       return true;
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : "Falha para adicionar item de rotina";
+        error instanceof Error ? error.message : "Falha ao adicionar item(s)";
       toast.error(message);
       return false;
     }
@@ -151,18 +155,18 @@ export default function RoutineManager() {
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || "Falha em atualizar item de rotina");
+        throw new Error(error.error || "Failed to update routine");
       }
 
       const updatedRoutine = await response.json();
       setRoutines((prev) =>
         prev.map((r) => (r.id === updatedRoutine.id ? updatedRoutine : r))
       );
-      toast.success("Item de rotina atualizado com sucesso");
+      toast.success("Item atualizado com sucesso");
       return true;
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : "Falha em atualizar item de rotina";
+        error instanceof Error ? error.message : "Falha ao atualizar item";
       toast.error(message);
       return false;
     }
@@ -176,14 +180,16 @@ export default function RoutineManager() {
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || "Fallha em deletar item de rotina");
+        throw new Error(error.error || "Falha ao deletar item da rotina");
       }
 
       setRoutines((prev) => prev.filter((r) => r.id !== id));
-      toast.success("Item de rotina Deletado com sucesso!");
+      toast.success("Item da rotina deletado com sucesso");
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : "Falha ao tentar deletar item de rotina";
+        error instanceof Error
+          ? error.message
+          : "Falha ao deletar item da rotina";
       toast.error(message);
     }
   };
@@ -211,16 +217,21 @@ export default function RoutineManager() {
             r.id === id ? { ...r, completed: routine.completed } : r
           )
         );
-        throw new Error("Falha em atualizar item de rotina");
+        throw new Error("Failed to update routine");
       }
 
       const updatedRoutine = await response.json();
       setRoutines((prev) =>
         prev.map((r) => (r.id === updatedRoutine.id ? updatedRoutine : r))
       );
+      toast.success(
+        `Rotina marcada como ${
+          updatedRoutine.completed ? "Completa" : "Incompleta"
+        }`
+      );
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : "Falha em atualizar item de rotina";
+        error instanceof Error ? error.message : "Failed to update routine";
       toast.error(message);
     }
   };
@@ -249,14 +260,14 @@ export default function RoutineManager() {
           </p>
         </div>
         <div className="flex items-center gap-4">
-          <Link href="/routines/analytics">
+          <Link href="/dashboard/rotinas/analises">
             <Button variant="outline">
               <BarChart2 className="mr-2 h-4 w-4" />
               Análises
             </Button>
           </Link>
           <Button onClick={() => setIsDialogOpen(true)} size="lg">
-            <Plus className="mr-2 h-4 w-4" /> Adicionar item a rotina
+            <Plus className="mr-2 h-4 w-4" /> Adicionar item(s) a rotina
           </Button>
         </div>
       </header>
@@ -279,6 +290,7 @@ export default function RoutineManager() {
             }}
             onDelete={handleDeleteRoutine}
             onToggleComplete={handleToggleComplete}
+            setIsDialogOpen={setIsDialogOpen}
           />
         ))}
         <TimeCard />

@@ -1,101 +1,145 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useEffect, useState } from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Plus, X, Clock, CalendarDays, ArrowDownUp } from "lucide-react"
-import { motion, AnimatePresence } from "framer-motion"
-import type { RoutineItem } from "./RoutineManager"
+import type React from "react";
+import { useEffect, useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Plus, X, Clock, CalendarDays, ArrowDownUp } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import type { RoutineItem } from "./RoutineManager";
 
 interface RoutineDialogProps {
-  isOpen: boolean
-  onClose: () => void
-  onSubmit: (routines: Omit<RoutineItem, "id" | "createdAt" | "updatedAt">[]) => Promise<boolean>
-  initialData?: RoutineItem | null
+  isOpen: boolean;
+  onClose: () => void;
+  onSubmit: (
+    routines: Omit<RoutineItem, "id" | "createdAt" | "updatedAt">[]
+  ) => Promise<boolean>;
+  initialData?: RoutineItem | null;
 }
 
-const DAYS = ["Domingo", "Segunda-Feira", "Terça-Feira", "Quarta-Feira", "Quinta-Feira", "Sexta-Feira", "Sábado"]
+const DAYS = [
+  "Domingo",
+  "Segunda-Feira",
+  "Terça-Feira",
+  "Quarta-Feira",
+  "Quinta-Feira",
+  "Sexta-Feira",
+  "Sábado",
+];
 
 interface RoutineFormData {
-  title: string
-  time: string
+  title: string;
+  time: string;
 }
 
-export function RoutineDialog({ isOpen, onClose, onSubmit, initialData }: RoutineDialogProps) {
-  const [selectedDay, setSelectedDay] = useState(new Date().getDay().toString())
-  const [routines, setRoutines] = useState<RoutineFormData[]>([{ title: "", time: "" }])
-  const [isSubmitting, setIsSubmitting] = useState(false)
+export function RoutineDialog({
+  isOpen,
+  onClose,
+  onSubmit,
+  initialData,
+}: RoutineDialogProps) {
+  const [selectedDay, setSelectedDay] = useState(
+    new Date().getDay().toString()
+  );
+  const [routines, setRoutines] = useState<RoutineFormData[]>([
+    { title: "", time: "" },
+  ]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (initialData) {
-      setSelectedDay(initialData.dayOfWeek.toString())
-      setRoutines([{ title: initialData.title, time: initialData.time }])
+      setSelectedDay(initialData.dayOfWeek.toString());
+      setRoutines([{ title: initialData.title, time: initialData.time }]);
     } else {
-      setSelectedDay(new Date().getDay().toString())
-      setRoutines([{ title: "", time: "" }])
+      setSelectedDay(new Date().getDay().toString());
+      setRoutines([{ title: "", time: "" }]);
     }
-  }, [initialData])
+  }, [initialData]);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    const validRoutines = routines.filter((r) => r.title && r.time)
-    if (validRoutines.length === 0) return
+    e.preventDefault();
+    const validRoutines = routines.filter((r) => r.title && r.time);
+    if (validRoutines.length === 0) return;
 
-    setIsSubmitting(true)
+    setIsSubmitting(true);
     try {
       const formattedRoutines = validRoutines.map((routine) => ({
         title: routine.title,
         dayOfWeek: Number.parseInt(selectedDay),
         time: routine.time,
         completed: false,
-      }))
+      }));
 
-      const success = await onSubmit(formattedRoutines)
+      const success = await onSubmit(formattedRoutines);
       if (success) {
-        setRoutines([{ title: "", time: "" }])
+        setRoutines([{ title: "", time: "" }]);
       }
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   const addRoutine = () => {
     if (routines.length < 20) {
-      setRoutines([...routines, { title: "", time: "" }])
+      setRoutines([...routines, { title: "", time: "" }]);
     }
-  }
+  };
 
   const removeRoutine = (index: number) => {
-    if (routines.length === 1) return
-    setRoutines(routines.filter((_, i) => i !== index))
-  }
+    if (routines.length === 1) return;
+    setRoutines(routines.filter((_, i) => i !== index));
+  };
 
-  const updateRoutine = (index: number, field: keyof RoutineFormData, value: string) => {
-    const updatedRoutines = [...routines]
-    updatedRoutines[index] = { ...updatedRoutines[index], [field]: value }
-    setRoutines(updatedRoutines)
-  }
+  const updateRoutine = (
+    index: number,
+    field: keyof RoutineFormData,
+    value: string
+  ) => {
+    const updatedRoutines = [...routines];
+    updatedRoutines[index] = { ...updatedRoutines[index], [field]: value };
+    setRoutines(updatedRoutines);
+  };
 
   const sortRoutinesByTime = () => {
-    setRoutines([...routines].sort((a, b) => a.time.localeCompare(b.time)))
-  }
+    setRoutines([...routines].sort((a, b) => a.time.localeCompare(b.time)));
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] flex flex-col">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">{initialData ? "Editar item da sua rotina" : "Adicionar Item a sua rotina"}</DialogTitle>
+          <DialogTitle className="flex items-center gap-2">
+            {initialData
+              ? "Editar item da sua Rotina"
+              : "Adicionar item(s) a sua Rotina"}
+          </DialogTitle>
           <DialogDescription>
-            {initialData ? "Edite os detalhes da sua rotina abaixo" : "Adicione uma ou mais rotinas para o dia selecionado"}
+            {initialData
+              ? "Edite os detalhes da sua rotina abaixo"
+              : "Adicione uma ou mais rotinas para o dia selecionado"}
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="flex-1 flex flex-col gap-4 min-h-0">
+        <form
+          onSubmit={handleSubmit}
+          className="flex-1 flex flex-col gap-4 min-h-0"
+        >
           <div className="space-y-2">
             <Label htmlFor="day" className="flex items-center gap-2">
               <CalendarDays className="h-4 w-4" />
@@ -147,14 +191,19 @@ export function RoutineDialog({ isOpen, onClose, onSubmit, initialData }: Routin
                       <Input
                         id={`title-${index}`}
                         value={routine.title}
-                        onChange={(e) => updateRoutine(index, "title", e.target.value)}
+                        onChange={(e) =>
+                          updateRoutine(index, "title", e.target.value)
+                        }
                         placeholder="Digite o título do item da rotina"
                         required
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor={`time-${index}`} className="flex items-center gap-2">
+                      <Label
+                        htmlFor={`time-${index}`}
+                        className="flex items-center gap-2"
+                      >
                         <Clock className="h-4 w-4" />
                         Horário
                       </Label>
@@ -162,7 +211,9 @@ export function RoutineDialog({ isOpen, onClose, onSubmit, initialData }: Routin
                         id={`time-${index}`}
                         type="time"
                         value={routine.time}
-                        onChange={(e) => updateRoutine(index, "time", e.target.value)}
+                        onChange={(e) =>
+                          updateRoutine(index, "time", e.target.value)
+                        }
                         required
                       />
                     </div>
@@ -197,13 +248,16 @@ export function RoutineDialog({ isOpen, onClose, onSubmit, initialData }: Routin
             )}
             <div className="flex-1 sm:flex-none flex justify-end gap-2">
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Salvando..." : initialData ? "Salvar alterações" : "Adicionar item(s)"}
+                {isSubmitting
+                  ? "Salvando..."
+                  : initialData
+                  ? "Salvar alterações"
+                  : "Adicionar item(s)"}
               </Button>
             </div>
           </div>
         </form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
-
