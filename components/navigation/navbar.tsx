@@ -57,7 +57,7 @@ const Navbar = () => {
                 height={40}
               />
               <span className="text-lg font-bold font-heading !leading-none tracking-tight">
-                Task Manager
+                HabiTask
               </span>
             </Link>
 
