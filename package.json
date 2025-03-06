@@ -11,7 +11,8 @@
     "db:generate": "dotenv -e .env.local -- npx prisma generate",
     "db:push": "dotenv -e .env.local -- npx prisma db push",
     "db:studio": "dotenv -e .env.local -- npx prisma studio",
-    "db:seed": "npx tsx scripts/seed.ts"
+    "db:seed": "npx tsx scripts/seed.ts",
+    "db:reset": "npx tsx scripts/reset-db.ts"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.7.4",

@@ -1,4 +1,3 @@
-import RoutineAnalytics from '@/components/routines/analytics/RoutineAnalytics';
 import { Metadata } from 'next';
 import React from 'react'
 
@@ -8,5 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function RoutineAnalyticsPage() {
-  return <RoutineAnalytics />
+  return <div>Em breve...</div>
 }
