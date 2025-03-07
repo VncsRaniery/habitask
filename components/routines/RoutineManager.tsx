@@ -48,13 +48,13 @@ export default function RoutineManager() {
   const fetchRoutines = useCallback(async () => {
     try {
       const response = await fetch("/api/routines");
-      if (!response.ok) throw new Error("Falha em carregar rotinas");
+      if (!response.ok) throw new Error("Falha ao buscar rotinas");
       const data = await response.json();
       setRoutines(data);
       setError(null);
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : "Falha em carregar rotinas";
+        error instanceof Error ? error.message : "Falha ao carregar rotinas";
       setError(message);
       toast.error(message);
     } finally {
@@ -65,26 +65,30 @@ export default function RoutineManager() {
   const checkAndResetRoutines = useCallback(async () => {
     const now = new Date();
     const lastReset = new Date(lastResetDate);
-
     if (
-      now.getDay() === 0 && // Domingo
+      now.getDay() === 0 && // Sunday
       now.getTime() - lastReset.getTime() > 6 * 24 * 60 * 60 * 1000
     ) {
       try {
-        const historyPromises = routines.map((routine) =>
-          fetch("/api/routines/history", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              routineId: routine.id,
-              completed: routine.completed,
-              date: now.toISOString(),
-              dayOfWeek: routine.dayOfWeek,
-            }),
-          })
-        );
+        for (const routine of routines) {
+          const today = now.toISOString().split("T")[0];
+          const historyResponse = await fetch(
+            `/api/routines/history/check?routineId=${routine.id}&date=${today}`
+          );
+          const historyData = await historyResponse.json();
+          if (!historyData.exists) {
+            await fetch("/api/routines/history", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                routineId: routine.id,
+                completed: routine.completed,
+                date: now.toISOString(),
+              }),
+            });
+          }
+        }
 
-        // Reset all routines
         const resetPromises = routines.map((routine) => {
           if (routine.completed) {
             return fetch(`/api/routines/${routine.id}`, {
@@ -95,8 +99,7 @@ export default function RoutineManager() {
           }
           return Promise.resolve();
         });
-
-        await Promise.all([...historyPromises, ...resetPromises]);
+        await Promise.all(resetPromises);
         setRoutines((prev) =>
           prev.map((routine) => ({ ...routine, completed: false }))
         );
@@ -108,8 +111,8 @@ export default function RoutineManager() {
         });
       } catch (error) {
         const message =
-          error instanceof Error ? error.message : "Falha em resertar item(s)";
-        toast.error("Falha em resetar item(s)", {
+          error instanceof Error ? error.message : "Falha ao redefinir rotinas";
+        toast.error("Falha ao redefinir rotinas", {
           description: message,
         });
       }
@@ -136,7 +139,7 @@ export default function RoutineManager() {
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || "Falha em adicionar item(s) a rotina");
+        throw new Error(error.error || "Falha ao adicionar rotina");
       }
 
       const newRoutines = await response.json();
@@ -147,12 +150,12 @@ export default function RoutineManager() {
       toast.success(
         `${
           Array.isArray(newRoutines) ? newRoutines.length : 1
-        } items(s) Adicionado(s) com sucesso`
+        } rotina(s) adicionada(s) com sucesso`
       );
       return true;
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : "Falha em adicionar item(s)";
+        error instanceof Error ? error.message : "Falha ao adicionar rotina";
       toast.error(message);
       return false;
     }
@@ -168,18 +171,18 @@ export default function RoutineManager() {
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || "Falha ao editar item");
+        throw new Error(error.error || "Falha ao atualizar rotina");
       }
 
       const updatedRoutine = await response.json();
       setRoutines((prev) =>
         prev.map((r) => (r.id === updatedRoutine.id ? updatedRoutine : r))
       );
-      toast.success("Item da rotina editado com sucesso");
+      toast.success("Rotina atualizada com sucesso");
       return true;
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : "Falha ao editar item";
+        error instanceof Error ? error.message : "Falha ao atualizar rotina";
       toast.error(message);
       return false;
     }
@@ -193,16 +196,14 @@ export default function RoutineManager() {
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || "Falha em deletar item da rotina");
+        throw new Error(error.error || "Falha ao excluir rotina");
       }
 
       setRoutines((prev) => prev.filter((r) => r.id !== id));
-      toast.success("Item da rotina deletado com sucesso");
+      toast.success("Rotina excluída com sucesso");
     } catch (error) {
       const message =
-        error instanceof Error
-          ? error.message
-          : "Falha ao deletar item da rotina";
+        error instanceof Error ? error.message : "Falha ao excluir rotina";
       toast.error(message);
     }
   };
@@ -211,54 +212,88 @@ export default function RoutineManager() {
     const routine = routines.find((r) => r.id === id);
     if (!routine) return;
 
-    // Optimistic update
+    const currentDayOfWeek = new Date().getDay();
+    if (currentDayOfWeek !== routine.dayOfWeek) {
+      toast.error("Você só pode marcar rotinas para o dia atual");
+      return;
+    }
+
     setRoutines((prev) =>
       prev.map((r) => (r.id === id ? { ...r, completed: !r.completed } : r))
     );
 
     try {
-      const [routineResponse, historyResponse] = await Promise.all([
-        fetch(`/api/routines/${id}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ...routine, completed: !routine.completed }),
-        }),
-        fetch("/api/routines/history", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            routineId: id,
-            completed: !routine.completed,
-            date: new Date().toISOString(),
-            dayOfWeek: routine.dayOfWeek,
-          }),
-        }),
-      ]);
+      const response = await fetch(`/api/routines/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...routine, completed: !routine.completed }),
+      });
 
-      if (!routineResponse.ok || !historyResponse.ok) {
-        throw new Error("Falha ao editar item da rotina");
+      if (!response.ok) {
+        setRoutines((prev) =>
+          prev.map((r) =>
+            r.id === id ? { ...r, completed: routine.completed } : r
+          )
+        );
+        throw new Error("Falha ao atualizar rotina");
       }
 
-      const updatedRoutine = await routineResponse.json();
+      const updatedRoutine = await response.json();
       setRoutines((prev) =>
         prev.map((r) => (r.id === updatedRoutine.id ? updatedRoutine : r))
       );
-      toast.success(
-        `Rotina marcada como ${
-          updatedRoutine.completed ? "concluída" : "incompleta"
-        }`
+
+      const today = new Date().toISOString().split("T")[0];
+
+      const historyResponse = await fetch(
+        `/api/routines/history/check?routineId=${updatedRoutine.id}&date=${today}`
       );
+      const historyData = await historyResponse.json();
+
+      if (historyData.exists) {
+        await fetch(`/api/routines/history/${historyData.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            completed: updatedRoutine.completed,
+          }),
+        });
+      } else {
+        await fetch("/api/routines/history", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            routineId: updatedRoutine.id,
+            completed: updatedRoutine.completed,
+            date: new Date().toISOString(),
+          }),
+        });
+      }
+
+      const dayRoutines = routines.filter(
+        (r) => r.dayOfWeek === currentDayOfWeek
+      );
+      const allCompleted = dayRoutines.every((r) =>
+        r.id === id ? updatedRoutine.completed : r.completed
+      );
+
+      if (allCompleted && updatedRoutine.completed) {
+        toast.success(
+          `As rotinas de ${DAYS[routine.dayOfWeek]} foram concluídas! 🎉`,
+          {
+            description: "Ótimo trabalho mantendo sua rotina!",
+          }
+        );
+      } else {
+        toast.success(
+          `Rotina marcada como ${
+            updatedRoutine.completed ? "concluída" : "incompleta"
+          }`
+        );
+      }
     } catch (error) {
-      // Revert on error
-      setRoutines((prev) =>
-        prev.map((r) =>
-          r.id === id ? { ...r, completed: routine.completed } : r
-        )
-      );
       const message =
-        error instanceof Error
-          ? error.message
-          : "Falha ao editar item da rotina";
+        error instanceof Error ? error.message : "Falha ao atualizar rotina";
       toast.error(message);
     }
   };
@@ -280,21 +315,21 @@ export default function RoutineManager() {
       <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">
-            Rotinas Semanais
+            Rotinas semanais
           </h1>
           <p className="text-muted-foreground mt-2">
             Gerencie suas rotinas diárias e monitore seus hábitos
           </p>
         </div>
         <div className="flex items-center gap-4">
-          <Link href="/dashboard/rotinas/analises">
+          <Link href="/dashboard/rotinas/analytics">
             <Button variant="outline">
               <BarChart2 className="mr-2 h-4 w-4" />
               Análises
             </Button>
           </Link>
           <Button onClick={() => setIsDialogOpen(true)} size="lg">
-            <Plus className="mr-2 h-4 w-4" /> Adicionar item(s) a rotina
+            <Plus className="mr-2 h-4 w-4" /> Adicionar rotina(s)
           </Button>
         </div>
       </header>

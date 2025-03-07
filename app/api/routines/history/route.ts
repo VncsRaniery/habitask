@@ -1,29 +1,52 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { auth } from "@/auth";
+import { getWeekNumber } from "@/lib/utils";
+
+type HistoryQuery = {
+  AND?: { weekNumber: number; yearNumber: number }[];
+  date?: { gte?: Date; dayOfWeek?: number };
+  yearNumber?: number;
+  routineId?: string;
+};
 
 export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const period = searchParams.get("period") || "all";
+  const routineId = searchParams.get("routineId");
+  const dayOfWeek = searchParams.get("dayOfWeek");
+
   try {
-    const session = await auth();
-    if (!session?.user) {
-      return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+    const now = new Date();
+    const currentWeek = getWeekNumber(now);
+    const currentYear = now.getFullYear();
+    const historyQuery: HistoryQuery = {};
+
+    if (period === "week") {
+      historyQuery.AND = [{ weekNumber: currentWeek, yearNumber: currentYear }];
+    } else if (period === "month") {
+      const fourWeeksAgo = new Date();
+      fourWeeksAgo.setDate(fourWeeksAgo.getDate() - 28);
+      historyQuery.date = { gte: fourWeeksAgo };
+    } else if (period === "year") {
+      historyQuery.yearNumber = currentYear;
     }
 
-    const { searchParams } = new URL(request.url);
-    const days = Number(searchParams.get("days")) || 90;
+    if (routineId) {
+      historyQuery.routineId = routineId;
+    }
 
-    const startDate = new Date();
-    startDate.setDate(startDate.getDate() - days);
+    if (dayOfWeek) {
+      const dayOfWeekInt = Number.parseInt(dayOfWeek);
+      if (!isNaN(dayOfWeekInt)) {
+        historyQuery.date = {
+          ...historyQuery.date,
+          dayOfWeek: dayOfWeekInt,
+        };
+      }
+    }
 
     const history = await db.routineHistory.findMany({
-      where: {
-        routine: {
-          userId: session.user.id,
-        },
-        date: {
-          gte: startDate,
-        },
-      },
+      where: historyQuery,
       include: {
         routine: true,
       },
@@ -34,9 +57,12 @@ export async function GET(request: Request) {
 
     return NextResponse.json(history);
   } catch (error) {
-    console.error("Failed to fetch routine history:", error);
+    console.error("Falha ao buscar histórico de rotina:", error);
     return NextResponse.json(
-      { error: "An error occurred while fetching routine history" },
+      {
+        error: "Ocorreu um erro ao buscar o histórico de rotina",
+        details: error instanceof Error ? error.message : error,
+      },
       { status: 500 }
     );
   }
@@ -44,35 +70,54 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const session = await auth();
-    if (!session?.user) {
-      return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
-    }
     const data = await request.json();
-    const routine = await db.routineItem.findFirst({
+    const { routineId, completed, date } = data;
+    const dateObj = new Date(date);
+    const startOfDay = new Date(dateObj);
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date(dateObj);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const existingEntry = await db.routineHistory.findFirst({
       where: {
-        id: data.routineId,
-        userId: session.user.id,
+        routineId,
+        date: {
+          gte: startOfDay,
+          lte: endOfDay,
+        },
       },
     });
 
-    if (!routine) {
-      return NextResponse.json({ error: "Rotina não encontrada ou não pertence a você" }, { status: 403 });
+    if (existingEntry) {
+      const updatedEntry = await db.routineHistory.update({
+        where: { id: existingEntry.id },
+        data: { completed },
+      });
+      return NextResponse.json(updatedEntry);
     }
+
+    const weekNumber = getWeekNumber(dateObj);
+    const yearNumber = dateObj.getFullYear();
 
     const history = await db.routineHistory.create({
       data: {
-        routineId: data.routineId,
-        completed: data.completed,
-        date: new Date(data.date),
-        dayOfWeek: data.dayOfWeek,
+        routineId,
+        completed,
+        date: dateObj,
+        weekNumber,
+        yearNumber,
       },
     });
+
     return NextResponse.json(history);
   } catch (error) {
-    console.error("Failed to create routine history:", error);
+    console.error("Falha ao criar histórico de rotina:", error);
     return NextResponse.json(
-      { error: "An error occurred while creating routine history" },
+      {
+        error: "Ocorreu um erro ao criar o histórico de rotina",
+        details: error instanceof Error ? error.message : error,
+      },
       { status: 500 }
     );
   }

@@ -4,9 +4,9 @@ import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Progress } from "@/components/ui/progress";
-import { Plus, Calendar } from "lucide-react";
+import { Plus, Calendar, Clock } from "lucide-react";
 import { RoutineItem } from "./RoutineItem";
+import { ProgressBar } from "@/components/ui/progress-bar";
 import type { RoutineItem as RoutineItemType } from "./RoutineManager";
 
 interface DayCardProps {
@@ -46,10 +46,39 @@ export function DayCard({
   };
 
   return (
-    <motion.div variants={cardVariants}>
+    <motion.div
+      variants={cardVariants}
+      animate={
+        isToday
+          ? {
+              boxShadow: [
+                "0px 0px 0px rgba(59, 130, 246, 0)",
+                "0px 0px 8px rgba(59, 130, 246, 0.5)",
+                "0px 0px 0px rgba(59, 130, 246, 0)",
+              ],
+            }
+          : {}
+      }
+      transition={
+        isToday
+          ? {
+              duration: 2,
+              ease: "easeInOut",
+              times: [0, 0.5, 1],
+              repeat: Number.POSITIVE_INFINITY,
+              repeatDelay: 1,
+            }
+          : {}
+      }
+    >
       <Card
         className={`h-[500px] relative overflow-hidden transition-shadow hover:shadow-lg
-      ${isToday ? "ring-2 ring-primary" : ""}`}
+        ${isToday ? "ring-2 ring-primary" : ""}
+        ${
+          completedCount === routines.length && routines.length > 0
+            ? "bg-primary/5"
+            : ""
+        }`}
       >
         <div className="absolute inset-0 bg-gradient-to-b from-background/50 to-background pointer-events-none" />
 
@@ -77,18 +106,21 @@ export function DayCard({
               onClick={() => setIsDialogOpen(true)}
             >
               <Plus className="h-4 w-4" />
-              <span className="sr-only">Adicionar item(s) a sua rotina</span>
+              <span className="sr-only">Adicionar rotina(s)</span>
             </Button>
           </div>
 
           <div className="space-y-1">
             <div className="flex justify-between text-sm text-muted-foreground">
               <span>
-                {completedCount} de {routines.length} completadas
+                {completedCount} de {routines.length} concluídas
               </span>
               <span>{Math.round(progress)}%</span>
             </div>
-            <Progress value={progress} className="h-2" />
+            <ProgressBar
+              value={progress}
+              isCompleted={completedCount === routines.length}
+            />
           </div>
         </CardHeader>
 
@@ -104,7 +136,7 @@ export function DayCard({
                   Sem rotinas para {day}
                 </p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Click em + para adicionar novos itens
+                  Clique em + para adicionar uma nova rotina
                 </p>
               </motion.div>
             ) : (
@@ -124,6 +156,28 @@ export function DayCard({
             )}
           </ScrollArea>
         </CardContent>
+
+        {isToday && completedCount < routines.length && routines.length > 0 && (
+          <motion.div
+            className="absolute bottom-2 right-2"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+          >
+            <div className="text-primary font-normal text-sm flex items-center gap-1">
+              <Clock className="h-4 w-4" />
+              Pendente
+            </div>
+          </motion.div>
+        )}
+        {completedCount === routines.length && routines.length > 0 && (
+          <motion.span
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="absolute bottom-2 right-2 ml-2 text-sm font-normal text-green-500"
+          >
+            ✓ Concluída
+          </motion.span>
+        )}
       </Card>
     </motion.div>
   );
