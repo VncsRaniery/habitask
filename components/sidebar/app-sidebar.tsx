@@ -39,7 +39,7 @@ const data = {
   navSecondary: [
     {
       title: "Configurações",
-      url: "#",
+      url: "/dashboard/config",
       icon: Cog,
     },
     {
