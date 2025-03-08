@@ -12,8 +12,8 @@ export const SignInSchema = zod.object({
 export type SignInSchemaType = zod.infer<typeof SignInSchema>
 
 export const SignUpSchema = zod.object({
-  name: zod.string().min(10, {
-    message: 'O nome deve ter pelo menos 10 caracteres',
+  name: zod.string().min(5, {
+    message: 'O nome deve ter pelo menos 5 caracteres',
   }),
   email: zod.string().email({
     message: 'Endereço de e-mail inválido',
