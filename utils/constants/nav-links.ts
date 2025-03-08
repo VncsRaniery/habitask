@@ -10,10 +10,6 @@ export const NAV_LINKS = [
         href: "#sobre",
     },
     {
-        title: "Preços",
-        href: "#precos",
-    },
-    {
         title: "Links úteis",
         href: "#",
         menu: [

@@ -1,8 +1,8 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import ThemeToggle from "../theme-toggle";
+import { CalendarRange } from "lucide-react";
 
 const Footer = () => {
   return (
@@ -12,13 +12,8 @@ const Footer = () => {
 
       <div className="grid gap-8 xl:grid-cols-3 xl:gap-8 w-full">
         <div className="flex flex-col items-start justify-start md:max-w-[200px]">
-          <div className="flex items-start">
-            <Image
-              src="/assets/placeholder.svg"
-              alt="Logo"
-              width={30}
-              height={30}
-            />
+          <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+            <CalendarRange className="size-4" />
           </div>
           <p className="text-muted-foreground mt-4 text-sm text-start">
             HabiTask é uma plataforma prática para organizar e gerenciar sua

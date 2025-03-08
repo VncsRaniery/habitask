@@ -11,13 +11,12 @@ import {
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
 import { cn, NAV_LINKS } from "@/utils";
-import { LucideIcon, ZapIcon } from "lucide-react";
+import { CalendarRange, LucideIcon, ZapIcon } from "lucide-react";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import MaxWidthWrapper from "@/components/global/max-width-wrapper";
 import AnimationContainer from "@/components/global/animation-container";
 import MobileNavbar from "./mobile-navbar";
-import Image from "next/image";
 import { useSession } from "next-auth/react"
 
 const Navbar = () => {
@@ -50,12 +49,9 @@ const Navbar = () => {
         <MaxWidthWrapper className="flex items-center justify-between">
           <div className="flex items-center space-x-12">
             <Link href="/" className="flex items-center gap-3">
-              <Image
-                src="/assets/placeholder.svg"
-                alt="Logo"
-                width={40}
-                height={40}
-              />
+            <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                  <CalendarRange className="size-4" />
+                </div>
               <span className="text-lg font-bold font-heading !leading-none tracking-tight">
                 HabiTask
               </span>

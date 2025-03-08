@@ -1,3 +1,5 @@
+"use client";
+
 import AnimationContainer from "@/components/global/animation-container";
 import MaxWidthWrapper from "@/components/global/max-width-wrapper";
 import { BorderBeam } from "@/components/ui/border-beam";
@@ -6,10 +8,23 @@ import MagicBadge from "@/components/ui/magic-badge";
 import MagicCard from "@/components/ui/magic-card";
 import { PROCESS } from "@/utils";
 import { ArrowRightIcon } from "lucide-react";
+import { useTheme } from "next-themes";
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
-const HomePage = async () => {
+const HomePage = () => {
+  const { theme } = useTheme();
+
+  const [imageSrc, setImageSrc] = useState("");
+
+  useEffect(() => {
+    if (theme === "dark") {
+      setImageSrc("/assets/dashboard-dark.png");
+    } else {
+      setImageSrc("/assets/dashboard-light.png");
+    }
+  }, [theme]);
 
   return (
     <div className="overflow-x-hidden scrollbar-hide size-full">
@@ -34,7 +49,8 @@ const HomePage = async () => {
               </span>
             </h1>
             <p className="mb-8 tracking-tight text-muted-foreground text-base text-balance">
-              Gerencie suas tarefas, projetos de forma simplificada e prática para ajudar e
+              Gerencie suas tarefas, projetos de forma simplificada e prática
+              para ajudar e
               <br className="hidden md:block" />
               <span className="hidden md:block">
                 auxiliar em suas organizações rotineiras.
@@ -42,10 +58,7 @@ const HomePage = async () => {
             </p>
             <div className="flex items-center justify-center whitespace-nowrap gap-4 z-50">
               <Button asChild>
-                <Link
-                  href="#precos"
-                  className="flex items-center"
-                >
+                <Link href="#precos" className="flex items-center">
                   Comece agora mesmo
                   <ArrowRightIcon className="w-4 h-4 ml-2" />
                 </Link>
@@ -59,14 +72,16 @@ const HomePage = async () => {
           >
             <div className="absolute md:top-[10%] left-1/2 gradient w-3/4 -translate-x-1/2 h-1/4 md:h-1/3 inset-0 blur-[5rem] animate-image-glow"></div>
             <div className="-m-2 rounded-xl p-2 ring-1 ring-inset ring-foreground/20 lg:-m-4 lg:rounded-2xl bg-opacity-50 backdrop-blur-3xl">
-              <Image
-                src="/assets/placeholder.svg"
-                alt="Dashboard"
-                width={1200}
-                height={1200}
-                quality={100}
-                className="rounded-md lg:rounded-xl bg-foreground/10 ring-1 ring-border"
-              />
+              {imageSrc && (
+                <Image
+                  src={imageSrc}
+                  alt="Dashboard"
+                  width={1200}
+                  height={1200}
+                  quality={100}
+                  className="rounded-md lg:rounded-xl bg-foreground/10 ring-1 ring-border"
+                />
+              )}
               <BorderBeam size={250} duration={12} delay={9} />
               <div className="absolute -bottom-4 inset-x-0 w-full h-1/2 bg-gradient-to-t from-background z-40"></div>
               <div className="absolute bottom-0 md:-bottom-8 inset-x-0 w-full h-1/4 bg-gradient-to-t from-background z-50"></div>
@@ -81,10 +96,10 @@ const HomePage = async () => {
           <div className="flex flex-col items-center lg:items-center justify-center w-full py-8 max-w-xl mx-auto">
             <MagicBadge title="O Processo" />
             <h2 className="text-center lg:text-center text-3xl md:text-5xl !leading-[1.1] font-medium font-heading text-foreground mt-6">
-              gerenciamento fácil em apenas 3 etapas
+              Gerenciamento fácil em 3 funcionalidades
             </h2>
             <p className="mt-4 text-center lg:text-center text-lg text-muted-foreground max-w-lg">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla at a nisl etiam.
+            Simplifique sua rotina com um processo intuitivo e eficiente. Em poucos passos, organize suas atividades e aumente sua produtividade.
             </p>
           </div>
         </AnimationContainer>
