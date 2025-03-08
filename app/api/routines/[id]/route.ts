@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { z } from "zod";
+import { auth } from "@/auth";
 
 const routineSchema = z.object({
   id: z.string().min(1, "ID é obrigatório"),
@@ -17,6 +18,11 @@ const routineSchema = z.object({
 
 export async function PUT(request: Request) {
   try {
+    const session = await auth();
+        if (!session?.user) {
+          return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+        }
+
     const data = await request.json();
 
     const validatedData = routineSchema.parse(data);

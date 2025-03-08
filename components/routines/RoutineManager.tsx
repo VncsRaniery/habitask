@@ -62,63 +62,85 @@ export default function RoutineManager() {
     }
   }, []);
 
+  const [forceReset, setForceReset] = useState(false);
   const checkAndResetRoutines = useCallback(async () => {
     const now = new Date();
     const lastReset = new Date(lastResetDate);
+
+    // Verifica se o reset foi forçado ou se é domingo e o reset ainda não foi feito neste dia
     if (
-      now.getDay() === 0 && // Sunday
-      now.getTime() - lastReset.getTime() > 6 * 24 * 60 * 60 * 1000
+      !forceReset &&
+      (now.getDay() !== 6 || lastReset.getDate() === now.getDate())
     ) {
-      try {
-        for (const routine of routines) {
-          const today = now.toISOString().split("T")[0];
-          const historyResponse = await fetch(
-            `/api/routines/history/check?routineId=${routine.id}&date=${today}`
-          );
-          const historyData = await historyResponse.json();
-          if (!historyData.exists) {
-            await fetch("/api/routines/history", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                routineId: routine.id,
-                completed: routine.completed,
-                date: now.toISOString(),
-              }),
-            });
-          }
-        }
-
-        const resetPromises = routines.map((routine) => {
-          if (routine.completed) {
-            return fetch(`/api/routines/${routine.id}`, {
-              method: "PUT",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ ...routine, completed: false }),
-            });
-          }
-          return Promise.resolve();
-        });
-        await Promise.all(resetPromises);
-        setRoutines((prev) =>
-          prev.map((routine) => ({ ...routine, completed: false }))
-        );
-        setLastResetDate(now.toISOString());
-
-        toast.success("As rotinas semanais foram redefinidas", {
-          description:
-            "Todas as rotinas foram marcadas como incompletas para a nova semana.",
-        });
-      } catch (error) {
-        const message =
-          error instanceof Error ? error.message : "Falha ao redefinir rotinas";
-        toast.error("Falha ao redefinir rotinas", {
-          description: message,
-        });
-      }
+      return; // Se não for domingo ou o reset já foi feito, não faz nada
     }
-  }, [lastResetDate, routines, setLastResetDate]);
 
+    try {
+      // Salvar histórico da semana, se necessário
+      const today = now.toISOString().split("T")[0]; // Formato "YYYY-MM-DD"
+      const historyPromises = routines.map(async (routine) => {
+        const historyResponse = await fetch(
+          `/api/routines/history/check?routineId=${routine.id}&date=${today}`
+        );
+        const historyData = await historyResponse.json();
+
+        if (!historyData.exists) {
+          await fetch("/api/routines/history", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              routineId: routine.id,
+              completed: routine.completed,
+              date: now.toISOString(),
+            }),
+          });
+        }
+      });
+
+      await Promise.all(historyPromises); // Processar todas as promessas de histórico simultaneamente
+
+      // Resetar rotinas
+      const resetPromises = routines.map((routine) => {
+        if (routine.completed) {
+          return fetch(`/api/routines/${routine.id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ ...routine, completed: false }),
+          });
+        }
+        return Promise.resolve(); // Retorna uma promessa resolvida caso não precise resetar
+      });
+
+      await Promise.all(resetPromises); // Executa o reset de todas as rotinas simultaneamente
+
+      // Atualizar estado local
+      setRoutines((prev) =>
+        prev.map((routine) => ({ ...routine, completed: false }))
+      );
+
+      // Atualizar a data do último reset
+      setLastResetDate(now.toISOString());
+
+      // Após o reset, desativa o controle manual (para garantir que só será ativado uma vez)
+      if (forceReset) {
+        setForceReset(false);
+      }
+
+      toast.success("Weekly routines have been reset", {
+        description:
+          "All routines have been marked as incomplete for the new week.",
+      });
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Failed to reset routines";
+      toast.error("Failed to reset routines", {
+        description: message,
+      });
+    }
+  }, [lastResetDate, routines, forceReset, setLastResetDate]);
+
+
+  
   useEffect(() => {
     fetchRoutines();
   }, [fetchRoutines]);

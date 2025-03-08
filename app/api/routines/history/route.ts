@@ -1,15 +1,33 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getWeekNumber } from "@/lib/utils";
+import { auth } from "@/auth";
 
-type HistoryQuery = {
-  AND?: { weekNumber: number; yearNumber: number }[];
-  date?: { gte?: Date; dayOfWeek?: number };
+interface HistoryQuery {
+  routine: {
+    userId: string;
+  };
+  weekNumber?: number;
   yearNumber?: number;
+  date?: {
+    gte?: Date;
+    lte?: Date;
+  };
   routineId?: string;
-};
+  AND?: Array<{
+    date?: {
+      gte?: Date;
+      lte?: Date;
+    };
+  }>;
+}
 
 export async function GET(request: Request) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+  }
+
   const { searchParams } = new URL(request.url);
   const period = searchParams.get("period") || "all";
   const routineId = searchParams.get("routineId");
@@ -19,10 +37,13 @@ export async function GET(request: Request) {
     const now = new Date();
     const currentWeek = getWeekNumber(now);
     const currentYear = now.getFullYear();
-    const historyQuery: HistoryQuery = {};
+    const historyQuery: HistoryQuery = {
+      routine: { userId: session.user.id },
+    };
 
     if (period === "week") {
-      historyQuery.AND = [{ weekNumber: currentWeek, yearNumber: currentYear }];
+      historyQuery.weekNumber = currentWeek;
+      historyQuery.yearNumber = currentYear;
     } else if (period === "month") {
       const fourWeeksAgo = new Date();
       fourWeeksAgo.setDate(fourWeeksAgo.getDate() - 28);
@@ -38,10 +59,17 @@ export async function GET(request: Request) {
     if (dayOfWeek) {
       const dayOfWeekInt = Number.parseInt(dayOfWeek);
       if (!isNaN(dayOfWeekInt)) {
-        historyQuery.date = {
-          ...historyQuery.date,
-          dayOfWeek: dayOfWeekInt,
-        };
+        const startOfDay = new Date(now);
+        startOfDay.setHours(0, 0, 0, 0); // Início do dia (00:00)
+        startOfDay.setDate(startOfDay.getDate() - startOfDay.getDay() + dayOfWeekInt);
+
+        const endOfDay = new Date(startOfDay);
+        endOfDay.setHours(23, 59, 59, 999);
+
+        historyQuery.AND = [
+          ...(historyQuery.AND || []),
+          { date: { gte: startOfDay, lte: endOfDay } },
+        ];
       }
     }
 
@@ -51,7 +79,7 @@ export async function GET(request: Request) {
         routine: true,
       },
       orderBy: {
-        date: "desc",
+        date: "asc",
       },
     });
 
@@ -70,6 +98,11 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+    }
+
     const data = await request.json();
     const { routineId, completed, date } = data;
     const dateObj = new Date(date);
@@ -78,6 +111,24 @@ export async function POST(request: Request) {
 
     const endOfDay = new Date(dateObj);
     endOfDay.setHours(23, 59, 59, 999);
+
+    const routine = await db.routineItem.findUnique({
+      where: { id: routineId },
+    });
+
+    if (!routine) {
+      return NextResponse.json(
+        { error: "Rotina não encontrada" },
+        { status: 404 }
+      );
+    }
+
+    if (routine.userId !== session.user.id) {
+      return NextResponse.json(
+        { error: "Acesso negado" },
+        { status: 403 }
+      );
+    }
 
     const existingEntry = await db.routineHistory.findFirst({
       where: {

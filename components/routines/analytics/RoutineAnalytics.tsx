@@ -458,8 +458,8 @@ export default function RoutineAnalytics() {
                   Sua Sequência atual é de {streakData.currentStreak} dias! 🔥
                 </AlertTitle>
                 <AlertDescription className="text-primary/90">
-                  Você está indo muito bem! Continue com o bom trabalho para manter
-                  sua sequência e construir hábitos consistentes.
+                  Você está indo muito bem! Continue com o bom trabalho para
+                  manter sua sequência e construir hábitos consistentes.
                 </AlertDescription>
               </Alert>
             </motion.div>
