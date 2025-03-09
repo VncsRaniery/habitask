@@ -1,16 +1,19 @@
-import { PrismaAdapter } from '@auth/prisma-adapter'
-import bcrypt from 'bcryptjs'
-import NextAuth from 'next-auth'
-import Credentials from 'next-auth/providers/credentials'
-import GitHub from 'next-auth/providers/github'
-import Google from 'next-auth/providers/google'
-import {db} from '@/lib/db'
-import { SignInSchema } from '@/schemas'
+import { PrismaAdapter } from "@auth/prisma-adapter";
+import bcrypt from "bcryptjs";
+import NextAuth from "next-auth";
+import Credentials from "next-auth/providers/credentials";
+import GitHub from "next-auth/providers/github";
+import Google from "next-auth/providers/google";
+import { db } from "@/lib/db";
+import { SignInSchema } from "@/schemas";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  pages: {
+    signIn: "/auth/sign-in",
+  },
   adapter: PrismaAdapter(db),
   session: {
-    strategy: 'jwt',
+    strategy: "jwt",
   },
   providers: [
     Credentials({
@@ -19,22 +22,22 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         password: {},
       },
       authorize: async (credentials) => {
-        const { email, password } = await SignInSchema.parseAsync(credentials)
+        const { email, password } = await SignInSchema.parseAsync(credentials);
 
         const user = await db.user.findUnique({
           where: {
             email,
           },
-        })
+        });
 
         if (!user) {
-          throw new Error('Usuário não encontrado')
+          throw new Error("Usuário não encontrado");
         }
 
-        const isValid = bcrypt.compareSync(password, user.password!)
+        const isValid = bcrypt.compareSync(password, user.password!);
 
         if (!isValid) {
-          throw new Error('Senha inválida')
+          throw new Error("Senha inválida");
         }
 
         return {
@@ -42,7 +45,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           name: user.name,
           email: user.email,
           image: user.image,
-        }
+        };
       },
     }),
     GitHub,
@@ -51,10 +54,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   callbacks: {
     session({ session, token }) {
       if (token.sub && session.user) {
-        session.user.id = token.sub
+        session.user.id = token.sub;
       }
-      return session
+      return session;
     },
   },
-  debug: process.env.NODE_ENV === 'development',
-})
+  debug: process.env.NODE_ENV === "development",
+});
