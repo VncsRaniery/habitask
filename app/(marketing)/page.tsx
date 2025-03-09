@@ -15,16 +15,16 @@ import { useEffect, useState } from "react";
 
 const HomePage = () => {
   const { theme } = useTheme();
+const [imageSrc, setImageSrc] = useState("");
 
-  const [imageSrc, setImageSrc] = useState("");
+useEffect(() => {
+  const isDark =
+    theme === "dark" ||
+    (theme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
 
-  useEffect(() => {
-    if (theme === "dark") {
-      setImageSrc("/assets/dashboard-dark.png");
-    } else {
-      setImageSrc("/assets/dashboard-light.png");
-    }
-  }, [theme]);
+  setImageSrc(isDark ? "/assets/dashboard-dark.png" : "/assets/dashboard-light.png");
+}, [theme]);
+
 
   return (
     <div className="overflow-x-hidden scrollbar-hide size-full">
