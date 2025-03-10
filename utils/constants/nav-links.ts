@@ -6,8 +6,26 @@ export const NAV_LINKS = [
         href: "/",
     },
     {
-        title: "Sobre",
-        href: "#sobre",
+        title: "Características",
+        href: "#features",
+        menu: [
+            {
+                title: "Organização simplificada",
+                tagline: "Crie formulários personalizados em minutos.",
+                href: "#features",
+                icon: Blocks,
+            },
+            {
+                title: "Análise de dados",
+                tagline: "Personalize seus formulários com facilidade.",
+                href: "#features",
+                icon: PieChart,
+            },
+        ],
+    },
+    {
+        title: "Processo",
+        href: "#processo",
     },
     {
         title: "Links úteis",
@@ -38,23 +56,5 @@ export const NAV_LINKS = [
                 icon: Contact,
             },
         ]
-    },
-    {
-        title: "Características",
-        href: "#",
-        menu: [
-            {
-                title: "Organização simplificada",
-                tagline: "Crie formulários personalizados em minutos.",
-                href: "#",
-                icon: Blocks,
-            },
-            {
-                title: "Análise de dados",
-                tagline: "Personalize seus formulários com facilidade.",
-                href: "#",
-                icon: PieChart,
-            },
-        ],
     },
 ];

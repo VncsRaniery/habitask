@@ -26,24 +26,17 @@ export function SettingsSkeleton() {
                 <Skeleton className="h-4 w-[250px]" />
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {[...Array(3)].map((_, i) => (
-                    <Card key={i} className="overflow-hidden">
-                      <CardContent className="p-6 flex flex-col items-center justify-center space-y-4">
-                        <Skeleton className="h-12 w-12 rounded-full" />
-                        <Skeleton className="h-4 w-16" />
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-
+                {/* Theme Card Skeleton */}
                 <div className="space-y-4">
-                  <Skeleton className="h-4 w-[100px]" />
-                  <div className="space-y-4">
+                  <Skeleton className="h-5 w-[120px] mb-4" /> {/* Legend */}
+                  <div className="flex gap-3">
                     {[...Array(3)].map((_, i) => (
-                      <div key={i} className="flex items-center space-x-2">
-                        <Skeleton className="h-4 w-4 rounded-full" />
-                        <Skeleton className="h-4 w-[100px]" />
+                      <div key={i} className="flex flex-col items-center">
+                        <Skeleton className="h-[70px] w-[88px] rounded-md mb-2" /> {/* Image */}
+                        <div className="flex items-center gap-1">
+                          <Skeleton className="h-4 w-4 rounded-full" /> {/* Icon */}
+                          <Skeleton className="h-4 w-[40px]" /> {/* Label */}
+                        </div>
                       </div>
                     ))}
                   </div>

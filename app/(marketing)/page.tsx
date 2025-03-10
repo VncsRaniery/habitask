@@ -5,8 +5,10 @@ import MaxWidthWrapper from "@/components/global/max-width-wrapper";
 import { BorderBeam } from "@/components/ui/border-beam";
 import { Button } from "@/components/ui/button";
 import MagicBadge from "@/components/ui/magic-badge";
-import MagicCard from "@/components/ui/magic-card";
-import { PROCESS } from "@/utils";
+import { MagicCard } from "@/components/ui/magic-card";
+import Particles from "@/components/ui/particles";
+import { cn, PROCESS, FEATURES } from "@/utils";
+import { motion } from "framer-motion";
 import { ArrowRightIcon } from "lucide-react";
 import { useTheme } from "next-themes";
 import Image from "next/image";
@@ -15,19 +17,22 @@ import { useEffect, useState } from "react";
 
 const HomePage = () => {
   const { theme } = useTheme();
-const [imageSrc, setImageSrc] = useState("");
+  const [imageSrc, setImageSrc] = useState("");
 
-useEffect(() => {
-  const isDark =
-    theme === "dark" ||
-    (theme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+  useEffect(() => {
+    const isDark =
+      theme === "dark" ||
+      (theme === "system" &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches);
 
-  setImageSrc(isDark ? "/assets/dashboard-dark.png" : "/assets/dashboard-light.png");
-}, [theme]);
-
+    setImageSrc(
+      isDark ? "/assets/dashboard-dark.png" : "/assets/dashboard-light.png"
+    );
+  }, [theme]);
 
   return (
     <div className="overflow-x-hidden scrollbar-hide size-full">
+      {/* Hero */}
       <MaxWidthWrapper>
         <div className="flex flex-col items-center justify-center w-full text-center bg-gradient-to-t from-background">
           <AnimationContainer className="flex flex-col items-center justify-center w-full text-center">
@@ -90,23 +95,99 @@ useEffect(() => {
         </div>
       </MaxWidthWrapper>
 
+      {/* Features */}
+      <MaxWidthWrapper className="py-10">
+        <div
+          id="features"
+          className="relative flex flex-col items-center justify-center w-full py-20"
+        >
+          <AnimationContainer>
+            <div className="flex flex-col items-center text-center max-w-2xl mx-auto">
+              <MagicBadge title="Características" />
+              <h2 className="text-2xl md:text-4xl lg:text-5xl font-heading font-medium !leading-snug mt-6">
+                Descubra nossas principais <br />
+                <span className="font-subheading italic">funcionalidades</span>
+              </h2>
+              <p className="text-base md:text-lg text-center text-accent-foreground/80 mt-6">
+                Torne sua rotina mais eficiente e produtiva. Crie tarefas
+                rapidamente, gerencie seus estudos com facilidade e tome
+                decisões mais inteligentes em poucos minutos.
+              </p>
+            </div>
+          </AnimationContainer>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8 relative overflow-visible">
+            {FEATURES.map((feature, index) => (
+              <AnimationContainer
+                key={feature.title}
+                delay={0.1 + index * 0.1}
+                className={cn(
+                  "relative flex flex-col rounded-2xl lg:rounded-3xl bg-card border border-border/50 hover:border-border/100 transition-colors",
+                  index === 3 && "lg:col-span-2",
+                  index === 2 && "md:col-span-2 lg:col-span-1"
+                )}
+              >
+                <MagicCard
+                  gradientFrom="#38bdf8"
+                  gradientTo="#3b82f6"
+                  className="p-4 lg:p-6 lg:rounded-3xl"
+                  gradientColor="rgba(59,130,246,0.1)"
+                >
+                  <div className="flex items-center space-x-4 mb-4">
+                    <h3 className="text-xl font-semibold flex items-center gap-2">
+                      <feature.icon className="size-5 text-primary" />
+                      {feature.title}
+                    </h3>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    {feature.description}
+                  </p>
+
+                  <div className="mt-6 w-full bg-card/50 overflow-hidden">
+                    <Image
+                      src={feature.image}
+                      alt={feature.title}
+                      width={500}
+                      height={500}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                </MagicCard>
+              </AnimationContainer>
+            ))}
+          </div>
+        </div>
+      </MaxWidthWrapper>
+
       {/* Processos */}
       <MaxWidthWrapper className="py-10">
         <AnimationContainer delay={0.1}>
-          <div className="flex flex-col items-center lg:items-center justify-center w-full py-8 max-w-xl mx-auto">
+          <div
+            id="processo"
+            className="flex flex-col items-center lg:items-center justify-center w-full py-8 max-w-xl mx-auto"
+          >
             <MagicBadge title="O Processo" />
             <h2 className="text-center lg:text-center text-3xl md:text-5xl !leading-[1.1] font-medium font-heading text-foreground mt-6">
-              Gerenciamento fácil em 3 funcionalidades
+              Três etapas para gerenciar
+              <br /> seu{" "}
+              <span className="font-subheading italic">dia a dia</span>
             </h2>
             <p className="mt-4 text-center lg:text-center text-lg text-muted-foreground max-w-lg">
-            Simplifique sua rotina com um processo intuitivo e eficiente. Em poucos passos, organize suas atividades e aumente sua produtividade.
+              Simplifique sua rotina com um processo intuitivo e eficiente. Em
+              poucos passos, organize suas atividades e aumente sua
+              produtividade.
             </p>
           </div>
         </AnimationContainer>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 w-full py-8 gap-4 md:gap-8">
           {PROCESS.map((process, id) => (
             <AnimationContainer delay={0.2 * id} key={id}>
-              <MagicCard className="group md:py-8">
+              <MagicCard
+                gradientFrom="#38bdf8"
+                gradientTo="#3b82f6"
+                className="p-4 lg:p-6 lg:rounded-3xl"
+                gradientColor="rgba(59,130,246,0.1)"
+              >
                 <div className="flex flex-col items-start justify-center w-full">
                   <process.icon
                     strokeWidth={1.5}
@@ -127,6 +208,61 @@ useEffect(() => {
               </MagicCard>
             </AnimationContainer>
           ))}
+        </div>
+      </MaxWidthWrapper>
+
+      {/* CTA */}
+      <MaxWidthWrapper>
+        <div className="relative flex flex-col items-center justify-center w-full py-20">
+          <AnimationContainer className="py-20 max-w-6xl mx-auto">
+            <div className="relative flex flex-col items-center justify-center py-12 lg:py-20 px-0 rounded-2xl lg:rounded-3xl bg-background/20 text-center border border-foreground/20 overflow-hidden">
+              <Particles
+                refresh
+                ease={80}
+                quantity={80}
+                color="#d4d4d4"
+                className="hidden lg:block absolute inset-0 z-0"
+              />
+              <Particles
+                refresh
+                ease={80}
+                quantity={35}
+                color="#d4d4d4"
+                className="block lg:hidden absolute inset-0 z-0"
+              />
+
+              <motion.div
+                className="absolute -bottom-1/8 left-1/3 -translate-x-1/2 w-44 h-32 lg:h-52 lg:w-1/3 rounded-full blur-[5rem] lg:blur-[10rem] -z-10"
+                style={{
+                  background:
+                    "conic-gradient(from 0deg at 50% 50%, #a855f7 0deg, #3b82f6 180deg, #06b6d4 360deg)",
+                }}
+                animate={{
+                  rotate: 360,
+                }}
+                transition={{
+                  duration: 8,
+                  repeat: Infinity,
+                  ease: "linear",
+                }}
+              />
+              <h2 className="text-3xl md:text-5xl lg:text-6xl font-heading font-medium !leading-snug">
+                Pronto para organizar seu <br />{" "}
+                <span className="font-subheading italic">dia a dia</span> com
+                mais eficiência?
+              </h2>
+              <p className="text-sm md:text-lg text-center text-accent-foreground/80 max-w-2xl mx-auto mt-4">
+                Automatize sua rotina e simplifique suas tarefas. Crie listas
+                inteligentes, acompanhe análises detalhadas{" "}
+                <span className="hidden lg:inline">
+                  e veja sua produtividade alcançar novos níveis.
+                </span>
+              </p>
+              <Link href="/dashboard" className="mt-8">
+                <Button size="lg">Comece agora mesmo</Button>
+              </Link>
+            </div>
+          </AnimationContainer>
         </div>
       </MaxWidthWrapper>
     </div>

@@ -110,12 +110,12 @@ const Footer = () => {
           </div>
         </div>
       </div>
-      <div className="mt-8 border-t border-border/40 pt-4 md:pt-8 md:flex md:items-center md:justify-between w-full">
-        <p className="text-sm text-muted-foreground mt-8 md:mt-0">
+      <div className="mt-8 border-t border-border/40 pt-4 md:pt-8 flex items-center justify-between w-full">
+        <p className="text-sm text-muted-foreground">
           &copy; {new Date().getFullYear()} VncsRaniery. Todos os direitos
           reservados.
         </p>
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center">
           <ThemeToggle />
         </div>
       </div>

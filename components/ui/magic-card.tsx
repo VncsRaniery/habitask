@@ -1,69 +1,106 @@
 "use client";
 
-import { cn } from "@/lib/utils";
-import React, { useRef, useState } from "react";
+import { motion, useMotionTemplate, useMotionValue } from "framer-motion";
+import React, { useCallback, useEffect, useRef } from "react";
 
-interface Props {
-    children: React.ReactNode;
-    className?: string;
+import { cn } from "@/utils";
+
+interface MagicCardProps extends React.HTMLAttributes<HTMLDivElement> {
+    gradientSize?: number;
+    gradientColor?: string;
+    gradientOpacity?: number;
+    gradientFrom?: string;
+    gradientTo?: string;
 }
 
-const MagicCard = ({ children, className }: Props) => {
-    const divRef = useRef<HTMLDivElement>(null);
-    const [isFocused, setIsFocused] = useState(false);
-    const [position, setPosition] = useState({ x: 0, y: 0 });
-    const [opacity, setOpacity] = useState(0);
+export function MagicCard({
+    children,
+    className,
+    gradientSize = 200,
+    gradientColor = "#262626",
+    gradientOpacity = 0.8,
+    gradientFrom = "#9E7AFF",
+    gradientTo = "#FE8BBB",
+}: MagicCardProps) {
+    const cardRef = useRef<HTMLDivElement>(null);
+    const mouseX = useMotionValue(-gradientSize);
+    const mouseY = useMotionValue(-gradientSize);
 
-    const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-        if (!divRef.current || isFocused) return;
+    const handleMouseMove = useCallback(
+        (e: MouseEvent) => {
+            if (cardRef.current) {
+                const { left, top } = cardRef.current.getBoundingClientRect();
+                const clientX = e.clientX;
+                const clientY = e.clientY;
+                mouseX.set(clientX - left);
+                mouseY.set(clientY - top);
+            }
+        },
+        [mouseX, mouseY],
+    );
 
-        const div = divRef.current;
-        const rect = div.getBoundingClientRect();
+    const handleMouseOut = useCallback(
+        (e: MouseEvent) => {
+            if (!e.relatedTarget) {
+                document.removeEventListener("mousemove", handleMouseMove);
+                mouseX.set(-gradientSize);
+                mouseY.set(-gradientSize);
+            }
+        },
+        [handleMouseMove, mouseX, gradientSize, mouseY],
+    );
 
-        setPosition({ x: e.clientX - rect.left, y: e.clientY - rect.top });
-    };
+    const handleMouseEnter = useCallback(() => {
+        document.addEventListener("mousemove", handleMouseMove);
+        mouseX.set(-gradientSize);
+        mouseY.set(-gradientSize);
+    }, [handleMouseMove, mouseX, gradientSize, mouseY]);
 
-    const handleFocus = () => {
-        setIsFocused(true);
-        setOpacity(1);
-    };
+    useEffect(() => {
+        document.addEventListener("mousemove", handleMouseMove);
+        document.addEventListener("mouseout", handleMouseOut);
+        document.addEventListener("mouseenter", handleMouseEnter);
 
-    const handleBlur = () => {
-        setIsFocused(false);
-        setOpacity(0);
-    };
+        return () => {
+            document.removeEventListener("mousemove", handleMouseMove);
+            document.removeEventListener("mouseout", handleMouseOut);
+            document.removeEventListener("mouseenter", handleMouseEnter);
+        };
+    }, [handleMouseEnter, handleMouseMove, handleMouseOut]);
 
-    const handleMouseEnter = () => {
-        setOpacity(1);
-    };
-
-    const handleMouseLeave = () => {
-        setOpacity(0);
-    };
+    useEffect(() => {
+        mouseX.set(-gradientSize);
+        mouseY.set(-gradientSize);
+    }, [gradientSize, mouseX, mouseY]);
 
     return (
         <div
-            ref={divRef}
-            onMouseMove={handleMouseMove}
-            onFocus={handleFocus}
-            onBlur={handleBlur}
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-            className={cn(
-                "relative max-w-md overflow-hidden rounded-xl border border-border/60 bg-gradient-to-r from-background to-background/40 p-4 md:p-6",
-                className
-            )}
+            ref={cardRef}
+            className={cn("group relative flex size-full rounded-xl", className)}
         >
-            <div
-                className="pointer-events-none absolute -inset-px opacity-0 transition duration-300"
+            <div className="absolute inset-px z-10 rounded-xl bg-background" />
+            <div className="relative z-30 w-full">{children}</div>
+            <motion.div
+                className="pointer-events-none absolute inset-px z-10 rounded-xl opacity-0 transition-opacity duration-300 group-hover:opacity-100"
                 style={{
-                    opacity,
-                    background: `radial-gradient(500px circle at ${position.x}px ${position.y}px, rgba(173,216,230,.15), transparent 60%)`,
+                    background: useMotionTemplate`
+            radial-gradient(${gradientSize}px circle at ${mouseX}px ${mouseY}px, ${gradientColor}, transparent 100%)
+          `,
+                    opacity: gradientOpacity,
                 }}
             />
-            {children}
+            <motion.div
+                className="pointer-events-none absolute inset-0 rounded-xl bg-border duration-300 group-hover:opacity-100"
+                style={{
+                    background: useMotionTemplate`
+            radial-gradient(${gradientSize}px circle at ${mouseX}px ${mouseY}px,
+              ${gradientFrom}, 
+              ${gradientTo}, 
+              hsl(var(--border)) 100%
+            )
+          `,
+                }}
+            />
         </div>
     );
 };
-
-export default MagicCard;

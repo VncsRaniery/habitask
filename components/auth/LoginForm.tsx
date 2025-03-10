@@ -31,6 +31,7 @@ import { Loader2 } from "lucide-react";
 import { HTMLMotionProps, motion } from "framer-motion";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
 export function LoginForm({
   className,
@@ -285,13 +286,14 @@ export function LoginForm({
                     variants={itemVariants}
                   >
                     Não possui uma conta?{" "}
-                    <motion.a
-                      href="/auth/sign-up"
-                      className="text-primary hover:underline underline-offset-4 transition-all"
-                      whileHover={{ scale: 1.05 }}
-                    >
-                      Cadastre-se
-                    </motion.a>
+                    <motion.span whileHover={{ scale: 1.05 }}>
+                      <Link
+                        href="/auth/sign-up"
+                        className="text-primary hover:underline underline-offset-4 transition-all"
+                      >
+                        Cadastre-se
+                      </Link>
+                    </motion.span>
                   </motion.div>
                 </div>
               </form>
