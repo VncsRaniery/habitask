@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
-import { Plus, BarChart2 } from "lucide-react";
+import { Plus, BarChart2, ListRestart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { DayCard } from "./DayCard";
@@ -62,44 +62,16 @@ export default function RoutineManager() {
     }
   }, []);
 
-  const [forceReset, setForceReset] = useState(false);
+  const [resetFailed, setResetFailed] = useState(false);
   const checkAndResetRoutines = useCallback(async () => {
     const now = new Date();
     const lastReset = new Date(lastResetDate);
 
-    // Verifica se o reset foi forçado ou se é domingo e o reset ainda não foi feito neste dia
-    if (
-      !forceReset &&
-      (now.getDay() !== 6 || lastReset.getDate() === now.getDate())
-    ) {
-      return; // Se não for domingo ou o reset já foi feito, não faz nada
+    if (lastReset.getDate() === now.getDate() || now.getDay() !== 0) {
+      return;
     }
 
     try {
-      // Salvar histórico da semana, se necessário
-      const today = now.toISOString().split("T")[0]; // Formato "YYYY-MM-DD"
-      const historyPromises = routines.map(async (routine) => {
-        const historyResponse = await fetch(
-          `/api/routines/history/check?routineId=${routine.id}&date=${today}`
-        );
-        const historyData = await historyResponse.json();
-
-        if (!historyData.exists) {
-          await fetch("/api/routines/history", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              routineId: routine.id,
-              completed: routine.completed,
-              date: now.toISOString(),
-            }),
-          });
-        }
-      });
-
-      await Promise.all(historyPromises); // Processar todas as promessas de histórico simultaneamente
-
-      // Resetar rotinas
       const resetPromises = routines.map((routine) => {
         if (routine.completed) {
           return fetch(`/api/routines/${routine.id}`, {
@@ -108,46 +80,44 @@ export default function RoutineManager() {
             body: JSON.stringify({ ...routine, completed: false }),
           });
         }
-        return Promise.resolve(); // Retorna uma promessa resolvida caso não precise resetar
+        return Promise.resolve();
       });
 
-      await Promise.all(resetPromises); // Executa o reset de todas as rotinas simultaneamente
+      await Promise.all(resetPromises);
 
-      // Atualizar estado local
       setRoutines((prev) =>
         prev.map((routine) => ({ ...routine, completed: false }))
       );
 
-      // Atualizar a data do último reset
       setLastResetDate(now.toISOString());
-
-      // Após o reset, desativa o controle manual (para garantir que só será ativado uma vez)
-      if (forceReset) {
-        setForceReset(false);
-      }
-
-      toast.success("Weekly routines have been reset", {
+      setResetFailed(false);
+      toast.success("As rotinas semanais foram redefinidas", {
         description:
-          "All routines have been marked as incomplete for the new week.",
+          "Todas as rotinas foram marcadas como incompletas para a nova semana.",
       });
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : "Failed to reset routines";
-      toast.error("Failed to reset routines", {
+        error instanceof Error ? error.message : "Falha ao redefinir rotinas";
+      setError(message);
+      setResetFailed(true);
+      toast.error("Falha ao redefinir rotinas", {
         description: message,
       });
     }
-  }, [lastResetDate, routines, forceReset, setLastResetDate]);
+  }, [lastResetDate, routines, setLastResetDate]);
 
-
-  
-  useEffect(() => {
-    fetchRoutines();
-  }, [fetchRoutines]);
+  const forceResetRoutines = () => {
+    setResetFailed(false);
+    checkAndResetRoutines();
+  };
 
   useEffect(() => {
     checkAndResetRoutines();
   }, [checkAndResetRoutines]);
+
+  useEffect(() => {
+    fetchRoutines();
+  }, [fetchRoutines]);
 
   const handleAddRoutine = async (
     routineData: Omit<RoutineItem, "id" | "createdAt" | "updatedAt">[]
@@ -344,6 +314,11 @@ export default function RoutineManager() {
           </p>
         </div>
         <div className="flex items-center gap-4">
+          {resetFailed && (
+            <Button variant="outline" onClick={forceResetRoutines}>
+              <ListRestart className="size-4" />
+            </Button>
+          )}
           <Link href="/dashboard/rotinas/analytics">
             <Button variant="outline">
               <BarChart2 className="mr-2 h-4 w-4" />
