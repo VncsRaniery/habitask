@@ -1,36 +1,73 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+<h1 align="start">
+  HabiTask - Organização e produtividade em um só lugar
+</h1>
 
-## Getting Started
+<img width="1280" alt="HabiTask Thumbnail" src="/public/assets/Banner.png">
 
-First, run the development server:
+## Introdução
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+**HabiTask** é uma plataforma moderna e responsiva que centraliza o gerenciamento do seu dia a dia em um único lugar. Projetado para proporcionar alto desempenho, segurança e uma experiência intuitiva, ele utiliza tecnologias de ponta para otimizar sua produtividade.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Destaques do projeto: 
+- **Design moderno e responsivo** desenvolvido com TailwindCSS e Shadcn UI.
+- **Gerenciamento completo** das suas tarefas, rotinas e estudos.  
+- **Análises detalhadas** do seu desempenho e hábitos diários.
+- **Autenticação segura e simplificada** com Auth.js V5.
+- **Armazenamento eficiente e escalável** utilizando NeonDB e Prisma ORM.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Tecnologias utilizadas
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **[Next.js](https://nextjs.org/):** Framework React para SSR, rotas dinâmicas e otimização de desempenho.
+- **[TailwindCSS](https://tailwindcss.com/):** CSS utilitário para estilização rápida e responsiva.
+- **[Shadcn UI](https://ui.shadcn.dev/):** Conjunto de componentes acessíveis e personalizáveis.
+- **[Authjs V5](https://authjs.dev/):** Solução robusta para autenticação e gerenciamento de usuários.
+- **[Prisma ORM](https://www.prisma.io/):** Ferramenta moderna para interação eficiente com o banco de dados.
+- **[NeonDB](https://console.neon.tech/):** Banco de dados escalável e otimizado para aplicações modernas. .
 
-## Learn More
+## Início rápido
 
-To learn more about Next.js, take a look at the following resources:
+### Pré-requisitos
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Certifique-se de ter instalado
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Node.js
+- Git
+- npm / yarn / pnpm / bun
 
-## Deploy on Vercel
+1. Clonar este repositório:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+   ```bash
+   git clone https://github.com/VncsRaniery/habitask
+   cd habitask
+   ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+2. Instale as dependências:
+   ```bash
+   npm install
+   ```
+3. Configurar variáveis de ​ambientes:
+
+   ```bash
+   # DATABASE ENVIRONMENT VARIABLES 
+   DATABASE_URL=""
+
+   # AUTH JS AUTENTIFICAÇÃO
+   AUTH_SECRET=""
+
+   # GOOGLE PROVIDER AUTH ENVIRONMENT VARIABLES (TESTE)
+   AUTH_GOOGLE_ID=
+   AUTH_GOOGLE_SECRET=
+
+   # GITHUB PROVIDER AUTH ENVIRONMENT VARIABLES
+   AUTH_GITHUB_ID=
+   AUTH_GITHUB_SECRET=
+
+   ```
+
+4. Execute o servidor de desenvolvimento:
+   ```bash
+   npm run dev
+   ```
+5. Abra seu navegador e navegue até http://localhost:3000 para ver o site em ação.
+
+---
