@@ -10,11 +10,14 @@ import {
   PieChart,
   Send,
   CalendarRange,
+  BookMarked,
+  Clock,
 } from "lucide-react";
 
 import { NavMain } from "@/components/sidebar/nav-main";
 import { NavTasks } from "@/components/sidebar/nav-tasks";
 import { NavRoutines } from "@/components/sidebar/nav-routine";
+import { NavStudies } from "@/components/sidebar/nav-studies";
 import { NavSecondary } from "@/components/sidebar/nav-secondary";
 import { NavUser } from "@/components/sidebar/nav-user";
 import {
@@ -72,6 +75,18 @@ const data = {
       icon: ChartLine,
     },
   ],
+  studies: [
+    {
+      name: "Planos de estudos",
+      url: "/dashboard/estudos",
+      icon: BookMarked,
+    },
+    {
+      name: "Temporizador pomodoro",
+      url: "/dashboard/estudos/pomodoro",
+      icon: Clock,
+    },
+  ],
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -98,6 +113,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavMain items={data.navMain} />
         <NavTasks tasks={data.tasks} />
         <NavRoutines routines={data.routines} />
+        <NavStudies studies={data.studies} />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
