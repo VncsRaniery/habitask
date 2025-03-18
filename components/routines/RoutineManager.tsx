@@ -45,6 +45,14 @@ export default function RoutineManager() {
     new Date().toISOString()
   );
 
+  const isSameDay = (date1: Date, date2: Date) => {
+    return (
+      date1.getFullYear() === date2.getFullYear() &&
+      date1.getMonth() === date2.getMonth() &&
+      date1.getDate() === date2.getDate()
+    );
+  };
+
   const fetchRoutines = useCallback(async () => {
     try {
       const response = await fetch("/api/routines");
@@ -67,21 +75,25 @@ export default function RoutineManager() {
     const now = new Date();
     const lastReset = new Date(lastResetDate);
 
-    if (lastReset.getDate() === now.getDate() || now.getDay() !== 0) {
+    if (now.getDay() !== 0 || isSameDay(now, lastReset)) {
       return;
     }
 
     try {
-      const resetPromises = routines.map((routine) => {
-        if (routine.completed) {
-          return fetch(`/api/routines/${routine.id}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ ...routine, completed: false }),
-          });
-        }
-        return Promise.resolve();
-      });
+      const completedRoutines = routines.filter((routine) => routine.completed);
+      
+      if (completedRoutines.length === 0) {
+        setLastResetDate(now.toISOString());
+        return;
+      }
+
+      const resetPromises = completedRoutines.map((routine) =>
+        fetch(`/api/routines/${routine.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...routine, completed: false }),
+        })
+      );
 
       await Promise.all(resetPromises);
 
@@ -91,9 +103,9 @@ export default function RoutineManager() {
 
       setLastResetDate(now.toISOString());
       setResetFailed(false);
-      toast.success("As rotinas semanais foram redefinidas", {
-        description:
-          "Todas as rotinas foram marcadas como incompletas para a nova semana.",
+      
+      toast.success("Rotinas semanais redefinidas", {
+        description: `${completedRoutines.length} rotina(s) foram redefinidas para a nova semana.`,
       });
     } catch (error) {
       const message =
