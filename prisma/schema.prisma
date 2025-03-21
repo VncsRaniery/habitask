@@ -49,6 +49,10 @@ model User {
     tasks            Task[]
     routines         RoutineItem[]
     pomodoroSessions SessionPomodoro[]
+    subjects         Subject[]
+    professors       Professor[]
+    studyResources   StudyResource[]
+    studySessions    StudySession[]
 
     @@map("users")
 }
@@ -118,6 +122,66 @@ model SessionPomodoro {
     totalPauseTime Int       @default(0)
     createdAt      DateTime  @default(now())
     updatedAt      DateTime  @updatedAt
+
+    userId String
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Subject {
+    id          String          @id @default(cuid())
+    name        String
+    description String?
+    color       String          @default("#4f46e5") // Default color for the subject
+    professorId String?
+    professor   Professor?      @relation(fields: [professorId], references: [id], onDelete: SetNull)
+    createdAt   DateTime        @default(now())
+    updatedAt   DateTime        @updatedAt
+    resources   StudyResource[]
+    sessions    StudySession[]
+
+    userId String
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Professor {
+    id        String    @id @default(cuid())
+    name      String
+    email     String?
+    phone     String?
+    subjects  Subject[]
+    createdAt DateTime  @default(now())
+    updatedAt DateTime  @updatedAt
+    userId    String
+    user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model StudyResource {
+    id          String   @id @default(cuid())
+    name        String
+    description String?
+    fileUrl     String
+    fileKey     String
+    fileType    String
+    subjectId   String
+    subject     Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+
+    userId String
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model StudySession {
+    id          String   @id @default(cuid())
+    title       String
+    description String?
+    startTime   DateTime
+    endTime     DateTime
+    subjectId   String
+    subject     Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+    completed   Boolean  @default(false)
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
 
     userId String
     user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)

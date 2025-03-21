@@ -1,4 +1,4 @@
-import PomodoroPage from "@/components/estudos/PomodoroPage";
+import PomodoroPage from "@/components/estudos/pomodoro/PomodoroPage";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
