@@ -1,8 +1,5 @@
 import { NextResponse } from "next/server"
-import { writeFile, mkdir } from "fs/promises"
-import { join } from "path"
 import { db } from "@/lib/db"
-import { v4 as uuidv4 } from "uuid"
 import { auth } from "@/auth"
 
 export async function POST(request: Request) {
@@ -43,27 +40,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Tipo de arquivo não suportado" }, { status: 400 })
     }
 
-    const uniqueId = uuidv4()
-    const fileName = `${uniqueId}-${file.name.replace(/\s+/g, "_")}`
-
-    // Create uploads directory if it doesn't exist
-    const uploadsDir = join(process.cwd(), "public", "uploads")
-    await mkdir(uploadsDir, { recursive: true })
-
+    // Lê o arquivo como um array de bytes
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
-
-    const filePath = join(uploadsDir, fileName)
-    await writeFile(filePath, buffer)
-
-    const fileUrl = `/uploads/${fileName}`
 
     const resource = await db.studyResource.create({
       data: {
         name,
         description,
-        fileUrl,
-        fileKey: uniqueId,
+        fileContent: buffer,
         fileType: fileExtension,
         subjectId,
         userId: session.user.id

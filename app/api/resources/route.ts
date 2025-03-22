@@ -49,8 +49,7 @@ export async function POST(request: Request) {
       data: {
         name: data.name,
         description: data.description,
-        fileUrl: data.fileUrl,
-        fileKey: data.fileKey,
+        fileContent: data.fileContent,
         fileType: data.fileType,
         subjectId: data.subjectId,
         userId: session.user.id,

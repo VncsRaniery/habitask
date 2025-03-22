@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Pencil, Trash2, MoreHorizontal, User, BookOpen } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
@@ -171,11 +171,6 @@ export default function SubjectsTab({ subjects, professors, onDelete, onUpdate, 
                       </div>
                     )}
                   </CardContent>
-                  <CardFooter className="pt-2">
-                    <Button variant="outline" size="sm" className="w-full" asChild>
-                      <a href={`/dashboard/estudos/assuntos/${subject.id}`}>Ver Detalhes</a>
-                    </Button>
-                  </CardFooter>
                 </Card>
               </motion.div>
             ))}

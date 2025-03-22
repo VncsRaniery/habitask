@@ -48,7 +48,7 @@ export default function ResourcesTab({ subjects, isLoading }: ResourcesTabProps)
         const data = await response.json()
         setResources(data)
       } catch (error) {
-        console.error("Falha ao buscar recursos:", error)
+        console.error("Erro ao buscar recursos:", error)
         toast.error("Falha ao carregar recursos")
       } finally {
         setIsLoadingResources(false)
@@ -102,7 +102,7 @@ export default function ResourcesTab({ subjects, isLoading }: ResourcesTabProps)
     e.preventDefault()
 
     if (!resourceName || !selectedSubject) {
-      toast.error("Por favor, forneça um nome e selecione uma matéria")
+      toast.error("Por favor, forneça um nome e selecione uma disciplina")
       return
     }
 
@@ -122,7 +122,7 @@ export default function ResourcesTab({ subjects, isLoading }: ResourcesTabProps)
         })
 
         if (!response.ok) {
-          throw new Error("Failed to update resource")
+          throw new Error("Falha ao atualizar recurso")
         }
 
         const updatedResource = await response.json()
@@ -130,7 +130,7 @@ export default function ResourcesTab({ subjects, isLoading }: ResourcesTabProps)
           prev.map((resource) => (resource.id === updatedResource.id ? updatedResource : resource)),
         )
 
-        toast.success("Resource updated successfully")
+        toast.success("Recurso atualizado com sucesso")
       } else {
         if (!selectedFile) {
           toast.error("Por favor, carregue um arquivo")
@@ -164,7 +164,7 @@ export default function ResourcesTab({ subjects, isLoading }: ResourcesTabProps)
       setEditingResource(null)
       setIsDialogOpen(false)
     } catch (error) {
-      console.error(`Erro ${editingResource ? "atualizando" : "adicionando"} recurso:`, error)
+      console.error(`Erro ao ${editingResource ? "atualizar" : "adicionar"} recurso:`, error)
       toast.error(`Falha ao ${editingResource ? "atualizar" : "adicionar"} recurso`)
     } finally {
       setIsUploading(false)
@@ -244,21 +244,21 @@ export default function ResourcesTab({ subjects, isLoading }: ResourcesTabProps)
 
   return (
     <>
-      <div className="flex flex-col md:flex-row justify-between gap-4 mb-6">
+      <div className="flex flex-col sm:flex-row justify-between gap-3 mb-6">
         <div className="flex-1">
           <Input
-            placeholder="Buscar recursos..."
+            placeholder="Pesquisar recursos..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2 w-full sm:w-auto">
           <Select value={selectedSubject} onValueChange={setSelectedSubject}>
-            <SelectTrigger className="w-[200px]">
-              <SelectValue placeholder="Filtrar por matéria" />
+            <SelectTrigger className="w-full sm:w-[180px]">
+              <SelectValue placeholder="Filtrar por disciplina" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Todos as matérias</SelectItem>
+              <SelectItem value="all">Todas as disciplinas</SelectItem>
               {subjects.map((subject) => (
                 <SelectItem key={subject.id} value={subject.id}>
                   {subject.name}
@@ -304,7 +304,7 @@ export default function ResourcesTab({ subjects, isLoading }: ResourcesTabProps)
           variants={containerVariants}
           initial="hidden"
           animate="visible"
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6"
         >
           <AnimatePresence>
             {filteredResources.map((resource) => (
@@ -312,16 +312,13 @@ export default function ResourcesTab({ subjects, isLoading }: ResourcesTabProps)
                 <Card className="h-full overflow-hidden transition-all hover:shadow-md group">
                   <div className="h-2" style={{ backgroundColor: resource.subject.color }} />
                   <CardHeader className="pb-2">
-                    {/* Update the resource card to include an edit button */}
-                    {/* Find the div with Button variant="ghost" size="icon" className="h-8 w-8 text-destructive opacity-0 group-hover:opacity-100 transition-opacity" */}
-                    {/* and add the edit button before it */}
-                    <div className="flex justify-between items-start">
-                      <CardTitle className="text-lg">{resource.name}</CardTitle>
-                      <div className="flex gap-1">
+                    <div className="flex justify-between items-start gap-4">
+                      <CardTitle className="text-lg break-words flex-1 max-w-[calc(100%-80px)]">{resource.name}</CardTitle>
+                      <div className="flex gap-1 shrink-0">
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                          className="h-8 w-8 group-hover:opacity-100 transition-opacity"
                           onClick={() => handleEditResource(resource)}
                         >
                           <Pencil className="h-4 w-4" />
@@ -329,7 +326,7 @@ export default function ResourcesTab({ subjects, isLoading }: ResourcesTabProps)
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8 text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
+                          className="h-8 w-8 text-destructive group-hover:opacity-100 transition-opacity"
                           onClick={() => handleDeleteResource(resource.id)}
                         >
                           <Trash2 className="h-4 w-4" />
@@ -337,7 +334,7 @@ export default function ResourcesTab({ subjects, isLoading }: ResourcesTabProps)
                       </div>
                     </div>
                   </CardHeader>
-                  <CardContent className="space-y-4">
+                  <CardContent className="space-y-3 p-4 sm:p-6">
                     {resource.description && (
                       <p className="text-sm text-muted-foreground line-clamp-2">{resource.description}</p>
                     )}
@@ -350,10 +347,14 @@ export default function ResourcesTab({ subjects, isLoading }: ResourcesTabProps)
                         {getFileIcon(resource.fileType)}
                         <span className="text-xs uppercase font-medium">{resource.fileType}</span>
                       </div>
-                      <Button size="sm" className="bg-primary hover:bg-primary/90" asChild>
-                        <a href={resource.fileUrl} target="_blank" rel="noopener noreferrer">
+                      <Button
+                        size="sm"
+                        className="bg-primary hover:bg-primary/90 text-xs sm:text-sm whitespace-nowrap"
+                        asChild
+                      >
+                        <a href={`/api/resources/${resource.id}/download`} target="_blank" rel="noopener noreferrer">
                           <Download className="mr-2 h-4 w-4" />
-                          Baixar
+                          Download
                         </a>
                       </Button>
                     </div>
@@ -365,7 +366,6 @@ export default function ResourcesTab({ subjects, isLoading }: ResourcesTabProps)
         </motion.div>
       )}
 
-      {/* Update the Dialog open state to use handleDialogClose */}
       <Dialog open={isDialogOpen} onOpenChange={handleDialogClose}>
         <DialogContent className="sm:max-w-[550px]">
           <DialogHeader>
@@ -396,10 +396,10 @@ export default function ResourcesTab({ subjects, isLoading }: ResourcesTabProps)
 
             {/* Update the subject selection to be disabled when editing */}
             <div className="space-y-2">
-              <Label htmlFor="subject">Matéria</Label>
+              <Label htmlFor="subject">Disciplina</Label>
               <Select value={selectedSubject} onValueChange={setSelectedSubject} disabled={!!editingResource} required>
                 <SelectTrigger>
-                  <SelectValue placeholder="Selecione uma Matéria" />
+                  <SelectValue placeholder="Selecione uma disciplina" />
                 </SelectTrigger>
                 <SelectContent>
                   {subjects.map((subject) => (
@@ -410,7 +410,7 @@ export default function ResourcesTab({ subjects, isLoading }: ResourcesTabProps)
                 </SelectContent>
               </Select>
               {editingResource && (
-                <p className="text-xs text-muted-foreground mt-1">A Matéria não pode ser alterada após o upload</p>
+                <p className="text-xs text-muted-foreground mt-1">A disciplina não pode ser alterada após o upload</p>
               )}
             </div>
 

@@ -159,8 +159,7 @@ model StudyResource {
     id          String   @id @default(cuid())
     name        String
     description String?
-    fileUrl     String
-    fileKey     String
+    fileContent Bytes    // Armazena o conteúdo do arquivo em bytes
     fileType    String
     subjectId   String
     subject     Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
