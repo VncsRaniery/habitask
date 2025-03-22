@@ -1,23 +1,11 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Pencil, Trash2, MoreHorizontal, User } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { useState } from "react"
+import { motion, AnimatePresence } from "framer-motion"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Pencil, Trash2, MoreHorizontal, User, BookOpen } from "lucide-react"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,57 +16,38 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { Input } from "@/components/ui/input";
-import type { Subject, Professor } from "@/types";
-import SubjectDialog from "./SubjectDialog";
-import { SubjectsTabSkeleton } from "@/components/skeletons/SubjectsTabSkeleton";
+} from "@/components/ui/alert-dialog"
+import { Input } from "@/components/ui/input"
+import type { Subject, Professor } from "@/types"
+import SubjectDialog from "./SubjectDialog"
+import { SubjectsTabSkeleton } from "@/components/skeletons/SubjectsTabSkeleton"
 
 interface SubjectsTabProps {
-  subjects: Subject[];
-  professors: Professor[];
-  onDelete: (id: string) => Promise<void>;
-  isLoading: boolean;
+  subjects: Subject[]
+  professors: Professor[]
+  onDelete: (id: string) => Promise<void>
+  onUpdate: (subject: Subject) => Promise<boolean>
+  isLoading: boolean
 }
 
-export default function SubjectsTab({
-  subjects,
-  professors,
-  onDelete,
-  isLoading,
-}: SubjectsTabProps) {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [editingSubject, setEditingSubject] = useState<Subject | null>(null);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+export default function SubjectsTab({ subjects, professors, onDelete, onUpdate, isLoading }: SubjectsTabProps) {
+  const [searchQuery, setSearchQuery] = useState("")
+  const [editingSubject, setEditingSubject] = useState<Subject | null>(null)
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
 
-  const filteredSubjects = subjects.filter((subject) =>
-    subject.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredSubjects = subjects.filter((subject) => subject.name.toLowerCase().includes(searchQuery.toLowerCase()))
 
-  const handleEditSubject = async (
-    subject: Omit<Subject, "id" | "createdAt" | "updatedAt">
-  ) => {
-    if (!editingSubject) return false;
+  const handleEditSubject = async (subject: Omit<Subject, "id" | "createdAt" | "updatedAt">) => {
+    if (!editingSubject) return false
 
-    try {
-      const response = await fetch(`/api/subjects/${editingSubject.id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(subject),
-      });
-
-      if (!response.ok) {
-        throw new Error("Falha ao atualizar o assunto");
-      }
-
-      return true;
-    } catch (error) {
-      console.error("Erro ao atualizar o assunto:", error);
-      return false;
+    const updatedSubject = {
+      ...editingSubject,
+      ...subject
     }
-  };
+
+    const success = await onUpdate(updatedSubject)
+    return success
+  }
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -88,7 +57,7 @@ export default function SubjectsTab({
         staggerChildren: 0.1,
       },
     },
-  };
+  }
 
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -97,17 +66,17 @@ export default function SubjectsTab({
       y: 0,
       transition: { duration: 0.3 },
     },
-  };
+  }
 
   if (isLoading) {
-    return <SubjectsTabSkeleton />;
+    return <SubjectsTabSkeleton />
   }
 
   return (
     <>
       <div className="mb-6">
         <Input
-          placeholder="Buscar matérias..."
+          placeholder="Pesquisar assuntos..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="max-w-md"
@@ -116,9 +85,12 @@ export default function SubjectsTab({
 
       {filteredSubjects.length === 0 ? (
         <div className="text-center py-12">
-          <p className="text-muted-foreground">
-            Nenhuma matéria encontrada. Adicione sua primeira matéria para
-            começar!
+          <div className="mx-auto w-24 h-24 rounded-full bg-muted flex items-center justify-center mb-4">
+            <BookOpen className="h-12 w-12 text-muted-foreground" />
+          </div>
+          <h3 className="text-lg font-medium">Nenhum assunto encontrado</h3>
+          <p className="text-muted-foreground mt-2 max-w-md mx-auto">
+            Adicione seu primeiro assunto para começar a usar o seu plano de estudo.
           </p>
         </div>
       ) : (
@@ -131,11 +103,8 @@ export default function SubjectsTab({
           <AnimatePresence>
             {filteredSubjects.map((subject) => (
               <motion.div key={subject.id} variants={itemVariants} layout>
-                <Card className="h-full overflow-hidden transition-all hover:shadow-md">
-                  <div
-                    className="h-2"
-                    style={{ backgroundColor: subject.color }}
-                  />
+                <Card className="h-full overflow-hidden transition-all hover:shadow-md group">
+                  <div className="h-2" style={{ backgroundColor: subject.color }} />
                   <CardHeader className="pb-2">
                     <div className="flex justify-between items-start">
                       <CardTitle className="text-xl">{subject.name}</CardTitle>
@@ -144,7 +113,7 @@ export default function SubjectsTab({
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-8 w-8"
+                            className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
                           >
                             <MoreHorizontal className="h-4 w-4" />
                           </Button>
@@ -152,12 +121,12 @@ export default function SubjectsTab({
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem
                             onClick={() => {
-                              setEditingSubject(subject);
-                              setIsEditDialogOpen(true);
+                              setEditingSubject(subject)
+                              setIsEditDialogOpen(true)
                             }}
                           >
                             <Pencil className="mr-2 h-4 w-4" />
-                            Edit
+                            Editar
                           </DropdownMenuItem>
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
@@ -171,13 +140,9 @@ export default function SubjectsTab({
                             </AlertDialogTrigger>
                             <AlertDialogContent>
                               <AlertDialogHeader>
-                                <AlertDialogTitle>
-                                  Tem certeza disso?
-                                </AlertDialogTitle>
+                                <AlertDialogTitle>Tem certeza?</AlertDialogTitle>
                                 <AlertDialogDescription>
-                                  Isso irá deletar permanentemente a matéria{" "}
-                                  {subject.name} e todos os recursos e sessões
-                                  associados.
+                                  Isso irá deletar permanentemente o assunto {subject.name} e todos os recursos e sessões associados.
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>
@@ -195,9 +160,7 @@ export default function SubjectsTab({
                       </DropdownMenu>
                     </div>
                     {subject.description && (
-                      <CardDescription className="line-clamp-2">
-                        {subject.description}
-                      </CardDescription>
+                      <CardDescription className="line-clamp-2">{subject.description}</CardDescription>
                     )}
                   </CardHeader>
                   <CardContent className="pb-2">
@@ -209,15 +172,8 @@ export default function SubjectsTab({
                     )}
                   </CardContent>
                   <CardFooter className="pt-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="w-full"
-                      asChild
-                    >
-                      <a href={`/study-planner/subjects/${subject.id}`}>
-                        Ver Detalhes
-                      </a>
+                    <Button variant="outline" size="sm" className="w-full" asChild>
+                      <a href={`/dashboard/estudos/assuntos/${subject.id}`}>Ver Detalhes</a>
                     </Button>
                   </CardFooter>
                 </Card>
@@ -231,8 +187,8 @@ export default function SubjectsTab({
         <SubjectDialog
           isOpen={isEditDialogOpen}
           onClose={() => {
-            setIsEditDialogOpen(false);
-            setEditingSubject(null);
+            setIsEditDialogOpen(false)
+            setEditingSubject(null)
           }}
           onSubmit={handleEditSubject}
           professors={professors}
@@ -240,5 +196,6 @@ export default function SubjectsTab({
         />
       )}
     </>
-  );
+  )
 }
+

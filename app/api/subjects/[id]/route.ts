@@ -9,8 +9,8 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
     }
 
-    const { searchParams } = new URL(request.url);
-    const id = searchParams.get("id");
+    const data = await request.json();
+    const { id } = data;
 
     if (!id) {
       return NextResponse.json({ error: "ID é obrigatório" }, { status: 400 });
@@ -33,14 +33,14 @@ export async function GET(request: Request) {
     });
 
     if (!subject) {
-      return NextResponse.json({ error: "Subject not found" }, { status: 404 });
+      return NextResponse.json({ error: "Assunto não encontrado" }, { status: 404 });
     }
 
     return NextResponse.json(subject);
   } catch (error) {
-    console.error("Failed to fetch subject:", error);
+    console.error("Falha ao buscar assunto:", error);
     return NextResponse.json(
-      { error: "Failed to fetch subject" },
+      { error: "Falha ao buscar assunto" },
       { status: 500 }
     );
   }
@@ -48,81 +48,41 @@ export async function GET(request: Request) {
 
 export async function PUT(request: Request) {
   try {
-    const session = await auth();
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
-    }
-
-    const { searchParams } = new URL(request.url);
-    const id = searchParams.get("id");
+    const data = await request.json();
+    const { id, name, description, color, professorId } = data;
 
     if (!id) {
       return NextResponse.json({ error: "ID é obrigatório" }, { status: 400 });
     }
 
-    const data = await request.json();
     const subject = await db.subject.update({
-      where: {
-        id: id,
-        userId: session.user.id,
-      },
-      data: {
-        name: data.name,
-        description: data.description,
-        color: data.color,
-        professorId: data.professorId,
-      },
-      include: {
-        professor: true,
-      },
+      where: { id },
+      data: { name, description, color, professorId },
+      include: { professor: true },
     });
+
     return NextResponse.json(subject);
   } catch (error) {
-    console.error("Failed to update subject:", error);
-    return NextResponse.json(
-      { error: "Failed to update subject" },
-      { status: 500 }
-    );
+    console.error("Falha ao atualizar assunto:", error);
+    return NextResponse.json({ error: "Falha ao atualizar assunto" }, { status: 500 });
   }
 }
 
 export async function DELETE(request: Request) {
   try {
-    const session = await auth();
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
-    }
+    const url = new URL(request.url)
+    const subjectId = url.pathname.split('/').pop()
 
-    const { searchParams } = new URL(request.url);
-    const id = searchParams.get("id");
-
-    if (!id) {
-      return NextResponse.json({ error: "ID é obrigatório" }, { status: 400 });
-    }
-
-    const subject = await db.subject.findUnique({
-      where: {
-        id: id,
-        userId: session.user.id,
-      },
-    });
-
-    if (!subject) {
-      return NextResponse.json({ error: "Subject not found" }, { status: 404 });
+    if (!subjectId) {
+      return NextResponse.json({ error: "ID é obrigatório" }, { status: 400 })
     }
 
     await db.subject.delete({
-      where: {
-        id: id,
-        userId: session.user.id,
-      },
-    });
-    return NextResponse.json({ message: "Subject deleted successfully" });
+      where: { id: subjectId },
+    })
+    return NextResponse.json({ message: "Assunto excluído com sucesso" })
   } catch (error) {
-    console.error("Failed to delete subject:", error);
-    return NextResponse.json(
-      { error: "Failed to delete subject" },
-      { status: 500 }
-    );
+    console.error("Erro ao excluir tarefa:", error)
+    return NextResponse.json({ error: "Falha ao excluir tarefa" }, { status: 500 })
   }
 }

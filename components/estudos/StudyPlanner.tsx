@@ -1,59 +1,59 @@
-"use client";
+"use client"
 
-import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import { Toaster } from "sonner";
-import { toast } from "sonner";
-import { PlusCircle, BookOpen, Users, FileText, Clock } from "lucide-react";
-import SubjectsTab from "@/components/estudos/SubjectsTab";
-import ProfessorsTab from "@/components/estudos/ProfessorsTab";
-import SessionsTab from "@/components/estudos/SessionsTab";
-import SubjectDialog from "@/components/estudos/SubjectDialog";
-import ProfessorDialog from "@/components/estudos/ProfessorDialog";
-import type { Subject, Professor } from "@/types";
+import { useState, useEffect } from "react"
+import { motion, AnimatePresence } from "framer-motion"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Button } from "@/components/ui/button"
+import { Toaster } from "sonner"
+import { toast } from "sonner"
+import { PlusCircle, BookOpen, Users, FileText, Clock, LayoutDashboard } from "lucide-react"
+import SubjectsTab from "./SubjectsTab"
+import ProfessorsTab from "./ProfessorsTab"
+import ResourcesTab from "./ResourcesTab"
+import SessionsTab from "./SessionsTab"
+import DashboardTab from "./DashboardTab"
+import SubjectDialog from "./SubjectDialog"
+import ProfessorDialog from "./ProfessorDialog"
+import type { Subject, Professor } from "@/types"
 
 export default function StudyPlanner() {
-  const [activeTab, setActiveTab] = useState("subjects");
-  const [subjects, setSubjects] = useState<Subject[]>([]);
-  const [professors, setProfessors] = useState<Professor[]>([]);
-  const [isSubjectDialogOpen, setIsSubjectDialogOpen] = useState(false);
-  const [isProfessorDialogOpen, setIsProfessorDialogOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("dashboard")
+  const [subjects, setSubjects] = useState<Subject[]>([])
+  const [professors, setProfessors] = useState<Professor[]>([])
+  const [isSubjectDialogOpen, setIsSubjectDialogOpen] = useState(false)
+  const [isProfessorDialogOpen, setIsProfessorDialogOpen] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+
+  const fetchData = async () => {
+    try {
+      setIsLoading(true)
+      const [subjectsResponse, professorsResponse] = await Promise.all([
+        fetch("/api/subjects"),
+        fetch("/api/professors"),
+      ])
+
+      if (!subjectsResponse.ok || !professorsResponse.ok) {
+        throw new Error("Falha ao buscar dados")
+      }
+
+      const subjectsData = await subjectsResponse.json()
+      const professorsData = await professorsResponse.json()
+
+      setSubjects(subjectsData)
+      setProfessors(professorsData)
+    } catch (error) {
+      console.error("Erro ao buscar dados:", error)
+      toast.error("Falha ao carregar dados")
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setIsLoading(true);
-        const [subjectsResponse, professorsResponse] = await Promise.all([
-          fetch("/api/subjects"),
-          fetch("/api/professors"),
-        ]);
+    fetchData()
+  }, [])
 
-        if (!subjectsResponse.ok || !professorsResponse.ok) {
-          throw new Error("Falha ao buscar dados");
-        }
-
-        const subjectsData = await subjectsResponse.json();
-        const professorsData = await professorsResponse.json();
-
-        setSubjects(subjectsData);
-        setProfessors(professorsData);
-      } catch (error) {
-        console.error("Erro ao buscar dados:", error);
-        toast.error("Falha ao carregar dados");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  const handleAddSubject = async (
-    subject: Omit<Subject, "id" | "createdAt" | "updatedAt">
-  ) => {
+  const handleAddSubject = async (subject: Omit<Subject, "id" | "createdAt" | "updatedAt">) => {
     try {
       const response = await fetch("/api/subjects", {
         method: "POST",
@@ -61,67 +61,93 @@ export default function StudyPlanner() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(subject),
-      });
+      })
 
       if (!response.ok) {
-        throw new Error("Falha ao adicionar matéria");
+        throw new Error("Falha ao adicionar o assunto")
       }
 
-      const newSubject = await response.json();
-      setSubjects((prev) => [newSubject, ...prev]);
-      toast.success("Matéria adicionada com sucesso");
-      return true;
+      const newSubject = await response.json()
+      setSubjects((prev) => [newSubject, ...prev])
+      toast.success("Assunto adicionado com sucesso")
+      return true
     } catch (error) {
-      console.error("Erro ao adicionar matéria:", error);
-      toast.error("Falha ao adicionar matéria");
-      return false;
+      console.error("Erro ao adicionar o assunto:", error)
+      toast.error("Falha ao adicionar o assunto")
+      return false
     }
-  };
+  }
 
-  const handleAddProfessor = async (
-    professor: Omit<Professor, "id" | "createdAt" | "updatedAt">
-  ) => {
+  const handleAddProfessor = async (data: Omit<Professor, "id" | "createdAt" | "updatedAt">) => {
     try {
       const response = await fetch("/api/professors", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(professor),
-      });
+        body: JSON.stringify(data),
+      })
 
       if (!response.ok) {
-        throw new Error("Falha ao adicionar professor");
+        throw new Error("Falha ao adicionar professor")
       }
 
-      const newProfessor = await response.json();
-      setProfessors((prev) => [...prev, newProfessor]);
-      toast.success("Professor adicionado com sucesso");
-      return true;
+      await fetchData()
+      toast.success("Professor adicionado com sucesso")
+      return true
     } catch (error) {
-      console.error("Erro ao adicionar professor:", error);
-      toast.error("Falha ao adicionar professor");
-      return false;
+      console.error("Erro ao adicionar professor:", error)
+      toast.error("Falha ao adicionar professor")
+      return false
     }
-  };
+  }
 
   const handleDeleteSubject = async (id: string) => {
     try {
       const response = await fetch(`/api/subjects/${id}`, {
         method: "DELETE",
-      });
+      })
 
       if (!response.ok) {
-        throw new Error("Falha ao deletar matéria");
+        throw new Error("Falha ao deletar o assunto")
       }
 
-      setSubjects((prev) => prev.filter((subject) => subject.id !== id));
-      toast.success("Matéria deletada com sucesso");
+      setSubjects((prev) => prev.filter((subject) => subject.id !== id))
+      toast.success("Assunto deletado com sucesso")
     } catch (error) {
-      console.error("Erro ao deletar matéria:", error);
-      toast.error("Falha ao deletar matéria");
+      console.error("Erro ao deletar o assunto:", error)
+      toast.error("Falha ao deletar o assunto")
     }
-  };
+  }
+
+  const handleUpdateSubject = async (updatedSubject: Subject) => {
+    try {
+      const response = await fetch(`/api/subjects/${updatedSubject.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedSubject),
+      })
+
+      if (!response.ok) {
+        throw new Error("Falha ao atualizar o assunto")
+      }
+
+      const updated = await response.json()
+      setSubjects((prev) => 
+        prev.map((subject) => 
+          subject.id === updated.id ? updated : subject
+        )
+      )
+      toast.success("Assunto atualizado com sucesso")
+      return true
+    } catch (error) {
+      console.error("Erro ao atualizar o assunto:", error)
+      toast.error("Falha ao atualizar o assunto")
+      return false
+    }
+  }
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -131,7 +157,7 @@ export default function StudyPlanner() {
         staggerChildren: 0.1,
       },
     },
-  };
+  }
 
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -140,17 +166,17 @@ export default function StudyPlanner() {
       y: 0,
       transition: { duration: 0.5 },
     },
-  };
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/30">
       <Toaster position="bottom-right" />
       <div className="container mx-auto px-4 py-8">
         <motion.div
           variants={containerVariants}
           initial="hidden"
           animate="visible"
-          className="max-w-6xl mx-auto space-y-6"
+          className="max-w-7xl mx-auto space-y-8"
         >
           {/* Header */}
           <motion.div
@@ -158,22 +184,20 @@ export default function StudyPlanner() {
             className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
           >
             <div>
-              <h1 className="text-3xl font-bold tracking-tight">
-                Plano de Estudos
+              <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+                Planilha de Estudos
               </h1>
-              <p className="text-muted-foreground mt-2">
-                Organize suas matérias, professores e materiais de estudo
-              </p>
+              <p className="text-muted-foreground mt-2">Organize sua jornada acadêmica com elegância e eficiência</p>
             </div>
             <div className="flex items-center gap-2">
               {activeTab === "subjects" && (
-                <Button onClick={() => setIsSubjectDialogOpen(true)}>
+                <Button onClick={() => setIsSubjectDialogOpen(true)} className="bg-primary hover:bg-primary/90">
                   <PlusCircle className="mr-2 h-4 w-4" />
-                  Adicionar Matéria
+                  Adicionar Assunto
                 </Button>
               )}
               {activeTab === "professors" && (
-                <Button onClick={() => setIsProfessorDialogOpen(true)}>
+                <Button onClick={() => setIsProfessorDialogOpen(true)} className="bg-primary hover:bg-primary/90">
                   <PlusCircle className="mr-2 h-4 w-4" />
                   Adicionar Professor
                 </Button>
@@ -183,60 +207,84 @@ export default function StudyPlanner() {
 
           {/* Tabs */}
           <motion.div variants={itemVariants}>
-            <Tabs
-              defaultValue="subjects"
-              value={activeTab}
-              onValueChange={setActiveTab}
-            >
-              <TabsList className="grid grid-cols-4 mb-8">
+            <Tabs defaultValue="dashboard" value={activeTab} onValueChange={setActiveTab}>
+              <TabsList className="grid grid-cols-5 mb-8 p-1 bg-muted/50 backdrop-blur-sm rounded-xl">
+                <TabsTrigger
+                  value="dashboard"
+                  className="flex items-center gap-2 rounded-lg data-[state=active]:bg-background"
+                >
+                  <LayoutDashboard className="h-4 w-4" />
+                  <span className="hidden sm:inline">Dashboard</span>
+                </TabsTrigger>
                 <TabsTrigger
                   value="subjects"
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 rounded-lg data-[state=active]:bg-background"
                 >
                   <BookOpen className="h-4 w-4" />
-                  <span className="hidden sm:inline">Matérias</span>
+                  <span className="hidden sm:inline">Assuntos</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="professors"
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 rounded-lg data-[state=active]:bg-background"
                 >
                   <Users className="h-4 w-4" />
                   <span className="hidden sm:inline">Professores</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="resources"
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 rounded-lg data-[state=active]:bg-background"
                 >
                   <FileText className="h-4 w-4" />
                   <span className="hidden sm:inline">Recursos</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="sessions"
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 rounded-lg data-[state=active]:bg-background"
                 >
                   <Clock className="h-4 w-4" />
                   <span className="hidden sm:inline">Sessões</span>
                 </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="subjects">
-                <SubjectsTab
-                  subjects={subjects}
-                  professors={professors}
-                  onDelete={handleDeleteSubject}
-                  isLoading={isLoading}
-                />
-              </TabsContent>
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeTab}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <TabsContent value="dashboard" className="mt-0">
+                    <DashboardTab subjects={subjects} professors={professors} isLoading={isLoading} />
+                  </TabsContent>
 
-              <TabsContent value="professors">
-                <ProfessorsTab professors={professors} isLoading={isLoading} />
-              </TabsContent>
+                  <TabsContent value="subjects" className="mt-0">
+                    <SubjectsTab
+                      subjects={subjects}
+                      professors={professors}
+                      onDelete={handleDeleteSubject}
+                      onUpdate={handleUpdateSubject}
+                      isLoading={isLoading}
+                    />
+                  </TabsContent>
 
-              <TabsContent value="resources">Em Breve...</TabsContent>
+                  <TabsContent value="professors" className="mt-0">
+                    <ProfessorsTab 
+                      professors={professors} 
+                      isLoading={isLoading} 
+                      onUpdate={fetchData}
+                    />
+                  </TabsContent>
 
-              <TabsContent value="sessions">
-                <SessionsTab subjects={subjects} isLoading={isLoading} />
-              </TabsContent>
+                  <TabsContent value="resources" className="mt-0">
+                    <ResourcesTab subjects={subjects} isLoading={isLoading} />
+                  </TabsContent>
+
+                  <TabsContent value="sessions" className="mt-0">
+                    <SessionsTab subjects={subjects} isLoading={isLoading} />
+                  </TabsContent>
+                </motion.div>
+              </AnimatePresence>
             </Tabs>
           </motion.div>
         </motion.div>
@@ -255,5 +303,6 @@ export default function StudyPlanner() {
         onSubmit={handleAddProfessor}
       />
     </div>
-  );
+  )
 }
+

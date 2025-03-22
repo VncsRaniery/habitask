@@ -22,9 +22,9 @@ export async function GET() {
     });
     return NextResponse.json(subjects);
   } catch (error) {
-    console.error("Failed to fetch subjects:", error);
+    console.error("Falha ao buscar assuntos:", error);
     return NextResponse.json(
-      { error: "Failed to fetch subjects" },
+      { error: "Falha ao buscar assuntos" },
       { status: 500 }
     );
   }
@@ -52,9 +52,9 @@ export async function POST(request: Request) {
     });
     return NextResponse.json(subject);
   } catch (error) {
-    console.error("Failed to create subject:", error);
+    console.error("Falha ao criar assunto:", error);
     return NextResponse.json(
-      { error: "Failed to create subject" },
+      { error: "Falha ao criar assunto" },
       { status: 500 }
     );
   }
