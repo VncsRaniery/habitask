@@ -246,45 +246,35 @@ export default function StudyPlanner() {
                 </TabsTrigger>
               </TabsList>
 
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={activeTab}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <TabsContent value="dashboard" className="mt-0">
-                    <DashboardTab subjects={subjects} professors={professors} isLoading={isLoading} />
-                  </TabsContent>
+              <TabsContent value="dashboard" className="mt-0">
+                <DashboardTab subjects={subjects} professors={professors} isLoading={isLoading} />
+              </TabsContent>
 
-                  <TabsContent value="subjects" className="mt-0">
-                    <SubjectsTab
-                      subjects={subjects}
-                      professors={professors}
-                      onDelete={handleDeleteSubject}
-                      onUpdate={handleUpdateSubject}
-                      isLoading={isLoading}
-                    />
-                  </TabsContent>
+              <TabsContent value="subjects" className="mt-0">
+                <SubjectsTab
+                  subjects={subjects}
+                  professors={professors}
+                  onDelete={handleDeleteSubject}
+                  onUpdate={handleUpdateSubject}
+                  isLoading={isLoading}
+                />
+              </TabsContent>
 
-                  <TabsContent value="professors" className="mt-0">
-                    <ProfessorsTab 
-                      professors={professors} 
-                      isLoading={isLoading} 
-                      onUpdate={fetchData}
-                    />
-                  </TabsContent>
+              <TabsContent value="professors" className="mt-0">
+                <ProfessorsTab 
+                  professors={professors} 
+                  isLoading={isLoading} 
+                  onUpdate={fetchData}
+                />
+              </TabsContent>
 
-                  <TabsContent value="resources" className="mt-0">
-                    <ResourcesTab subjects={subjects} isLoading={isLoading} />
-                  </TabsContent>
+              <TabsContent value="resources" className="mt-0">
+                <ResourcesTab subjects={subjects} isLoading={isLoading} />
+              </TabsContent>
 
-                  <TabsContent value="sessions" className="mt-0">
-                    <SessionsTab subjects={subjects} isLoading={isLoading} />
-                  </TabsContent>
-                </motion.div>
-              </AnimatePresence>
+              <TabsContent value="sessions" className="mt-0">
+                <SessionsTab subjects={subjects} isLoading={isLoading} />
+              </TabsContent>
             </Tabs>
           </motion.div>
         </motion.div>

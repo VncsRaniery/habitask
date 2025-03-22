@@ -45,24 +45,14 @@ export async function GET(request: Request) {
 
 export async function PUT(request: Request) {
   try {
-    const session = await auth();
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
-    }
-
-    const { searchParams } = new URL(request.url);
-    const id = searchParams.get("id");
-
+    const id = request.url.split("/").pop();
     if (!id) {
       return NextResponse.json({ error: "ID é obrigatório" }, { status: 400 });
     }
 
     const data = await request.json();
     const resource = await db.studyResource.update({
-      where: {
-        id: id,
-        userId: session.user.id,
-      },
+      where: { id },
       data: {
         name: data.name,
         description: data.description,
@@ -73,53 +63,28 @@ export async function PUT(request: Request) {
     });
     return NextResponse.json(resource);
   } catch (error) {
-    console.error("Failed to update resource:", error);
-    return NextResponse.json(
-      { error: "Failed to update resource" },
-      { status: 500 }
-    );
+    console.error("Falha ao atualizar sessão:", error);
+    return NextResponse.json({ error: "Falha ao atualizar sessão" }, { status: 500 });
   }
 }
 
 export async function DELETE(request: Request) {
   try {
-    const session = await auth();
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
-    }
+    const url = new URL(request.url);
+    const studyResourceId = url.pathname.split("/").pop();
 
-    const { searchParams } = new URL(request.url);
-    const id = searchParams.get("id");
-
-    if (!id) {
+    if (!studyResourceId) {
       return NextResponse.json({ error: "ID é obrigatório" }, { status: 400 });
     }
 
-    const resource = await db.studyResource.findUnique({
-      where: {
-        id: id,
-        userId: session.user.id,
-      },
-    });
-
-    if (!resource) {
-      return NextResponse.json(
-        { error: "Resource not found" },
-        { status: 404 }
-      );
-    }
-
     await db.studyResource.delete({
-      where: {
-        id: id,
-        userId: session.user.id,
-      },
+      where: { id: studyResourceId },
     });
-    return NextResponse.json({ message: "Resource deleted successfully" });
+    return NextResponse.json({ message: "Recurso deletado com sucesso" });
   } catch (error) {
-    console.error("Failed to delete resource:", error);
+    console.error("Falha ao deletar recurso:", error);
     return NextResponse.json(
-      { error: "Failed to delete resource" },
+      { error: "Falha ao deletar recurso" },
       { status: 500 }
     );
   }

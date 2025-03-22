@@ -10,7 +10,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { format, parseISO, isToday, isTomorrow, isThisWeek } from "date-fns";
 import {
@@ -25,7 +24,7 @@ import {
 } from "lucide-react";
 import type { Subject, Professor, StudySession, StudyResource } from "@/types";
 import { DashboardSkeleton } from "@/components/skeletons/DashboardSkeleton";
-import Link from "next/link";
+import { ptBR } from "date-fns/locale";
 
 interface DashboardTabProps {
   subjects: Subject[];
@@ -71,7 +70,6 @@ export default function DashboardTab({
         setSessions(sessionsData);
         setResources(resourcesData);
 
-        // Calculate stats
         const completedSessions = sessionsData.filter(
           (session: StudySession) => session.completed
         ).length;
@@ -130,7 +128,6 @@ export default function DashboardTab({
     return <DashboardSkeleton />;
   }
 
-  // Get upcoming sessions (today and tomorrow)
   const upcomingSessions = sessions
     .filter((session) => {
       const sessionDate = parseISO(session.startTime);
@@ -144,7 +141,6 @@ export default function DashboardTab({
     )
     .slice(0, 3);
 
-  // Get recent resources
   const recentResources = resources
     .sort(
       (a, b) =>
@@ -173,20 +169,6 @@ export default function DashboardTab({
             Rastreie seu progresso acadêmico, gerencie seus recursos de estudo e
             mantenha-se atualizado em sua jornada de aprendizado.
           </p>
-          <div className="mt-6 flex flex-wrap gap-3">
-            <Button asChild>
-              <Link href="#upcoming-sessions">
-                Ver Sessões Futuras
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-            <Button variant="outline" asChild>
-              <Link href="#recent-resources">
-                Ver Recursos
-                <FileText className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-          </div>
         </div>
       </motion.div>
 
@@ -196,14 +178,14 @@ export default function DashboardTab({
           <Card className="bg-card/50 backdrop-blur-sm">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
-                Total de Matérias
+                Total de Assuntos
               </CardTitle>
               <BookOpen className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{subjects.length}</div>
               <p className="text-xs text-muted-foreground mt-1">
-                {subjects.length === 1 ? "Matéria" : "Matérias"} em seu
+                {subjects.length === 1 ? "Assunto" : "Assuntos"} em seu
                 currículo
               </p>
             </CardContent>
@@ -309,7 +291,8 @@ export default function DashboardTab({
                         <span>
                           {format(
                             parseISO(session.startTime),
-                            "EEEE, MMM d • h:mm a"
+                            "EEEE, MMM d • h:mm a",
+                            { locale: ptBR }
                           )}
                         </span>
                       </div>
@@ -319,14 +302,6 @@ export default function DashboardTab({
               </div>
             )}
           </CardContent>
-          <CardFooter>
-            <Button variant="outline" className="w-full" asChild>
-              <Link href="#" onClick={() => setActiveTab("sessions")}>
-                Ver Todas as Sessões
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-          </CardFooter>
         </Card>
 
         {/* Recent Resources */}
@@ -375,41 +350,25 @@ export default function DashboardTab({
                       </p>
                       <p className="text-xs text-muted-foreground">
                         {resource.fileType.toUpperCase()} •{" "}
-                        {format(new Date(resource.createdAt), "MMM d, yyyy")}
+                        {format(new Date(resource.createdAt), "MMM d, yyyy", {
+                          locale: ptBR,
+                        })}
                       </p>
                     </div>
-                    <Button size="sm" variant="outline" asChild>
-                      <a
-                        href={resource.fileUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        Ver
-                      </a>
-                    </Button>
                   </div>
                 ))}
               </div>
             )}
           </CardContent>
-          <CardFooter>
-            <Button variant="outline" className="w-full" asChild>
-              <Link href="#" onClick={() => setActiveTab("resources")}>
-                Ver Todos os Recursos
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-          </CardFooter>
         </Card>
       </motion.div>
 
-      {/* Subject Overview */}
       <motion.div variants={itemVariants}>
         <Card className="bg-card/50 backdrop-blur-sm">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle>Visão Geral das Matérias</CardTitle>
+                <CardTitle>Visão Geral dos Assuntos</CardTitle>
                 <CardDescription>
                   Seu currículo acadêmico em um olhada
                 </CardDescription>
@@ -423,9 +382,9 @@ export default function DashboardTab({
                 <div className="rounded-full bg-primary/10 p-3 mb-3">
                   <BookOpen className="h-6 w-6 text-primary" />
                 </div>
-                <p className="text-sm font-medium">Nenhuma matéria ainda</p>
+                <p className="text-sm font-medium">Nenhum assunto ainda</p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Adicione suas primeiras matérias para começar a usar sua planilha
+                  Adicione seu primeiro assunto para começar a usar sua planilha
                   de estudo.
                 </p>
               </div>
@@ -459,16 +418,6 @@ export default function DashboardTab({
               </div>
             )}
           </CardContent>
-          {subjects.length > 6 && (
-            <CardFooter>
-              <Button variant="outline" className="w-full" asChild>
-                <Link href="#" onClick={() => setActiveTab("subjects")}>
-                  Ver Todas as Matérias
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
-            </CardFooter>
-          )}
         </Card>
       </motion.div>
     </motion.div>
