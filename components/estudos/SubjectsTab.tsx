@@ -76,7 +76,7 @@ export default function SubjectsTab({ subjects, professors, onDelete, onUpdate, 
     <>
       <div className="mb-6">
         <Input
-          placeholder="Pesquisar assuntos..."
+          placeholder="Pesquisar matérias..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="max-w-md"
@@ -88,9 +88,9 @@ export default function SubjectsTab({ subjects, professors, onDelete, onUpdate, 
           <div className="mx-auto w-24 h-24 rounded-full bg-muted flex items-center justify-center mb-4">
             <BookOpen className="h-12 w-12 text-muted-foreground" />
           </div>
-          <h3 className="text-lg font-medium">Nenhum assunto encontrado</h3>
+          <h3 className="text-lg font-medium">Nenhuma matéria encontrada</h3>
           <p className="text-muted-foreground mt-2 max-w-md mx-auto">
-            Adicione seu primeiro assunto para começar a usar o seu plano de estudo.
+            Adicione sua primeira matéria para começar a usar o seu plano de estudo.
           </p>
         </div>
       ) : (
@@ -142,7 +142,7 @@ export default function SubjectsTab({ subjects, professors, onDelete, onUpdate, 
                               <AlertDialogHeader>
                                 <AlertDialogTitle>Tem certeza?</AlertDialogTitle>
                                 <AlertDialogDescription>
-                                  Isso irá deletar permanentemente o assunto {subject.name} e todos os recursos e sessões associados.
+                                  Isso irá deletar permanentemente a matéria de {subject.name} e todos os recursos e sessões associados.
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>

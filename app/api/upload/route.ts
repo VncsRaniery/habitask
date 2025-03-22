@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { writeFile } from "fs/promises"
+import { writeFile, mkdir } from "fs/promises"
 import { join } from "path"
 import { db } from "@/lib/db"
 import { v4 as uuidv4 } from "uuid"
@@ -48,6 +48,7 @@ export async function POST(request: Request) {
 
     // Create uploads directory if it doesn't exist
     const uploadsDir = join(process.cwd(), "public", "uploads")
+    await mkdir(uploadsDir, { recursive: true })
 
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)

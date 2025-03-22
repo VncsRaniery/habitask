@@ -196,14 +196,14 @@ export default function DashboardTab({
           <Card className="bg-card/50 backdrop-blur-sm">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
-                Total de Assuntos
+                Total de Matérias
               </CardTitle>
               <BookOpen className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{subjects.length}</div>
               <p className="text-xs text-muted-foreground mt-1">
-                {subjects.length === 1 ? "Assunto" : "Assuntos"} em seu
+                {subjects.length === 1 ? "Matéria" : "Matérias"} em seu
                 currículo
               </p>
             </CardContent>
@@ -409,7 +409,7 @@ export default function DashboardTab({
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle>Visão Geral dos Assuntos</CardTitle>
+                <CardTitle>Visão Geral das Matérias</CardTitle>
                 <CardDescription>
                   Seu currículo acadêmico em um olhada
                 </CardDescription>
@@ -423,9 +423,9 @@ export default function DashboardTab({
                 <div className="rounded-full bg-primary/10 p-3 mb-3">
                   <BookOpen className="h-6 w-6 text-primary" />
                 </div>
-                <p className="text-sm font-medium">Nenhum assunto ainda</p>
+                <p className="text-sm font-medium">Nenhuma matéria ainda</p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Adicione seu primeiro assunto para começar a usar sua planilha
+                  Adicione suas primeiras matérias para começar a usar sua planilha
                   de estudo.
                 </p>
               </div>
@@ -463,7 +463,7 @@ export default function DashboardTab({
             <CardFooter>
               <Button variant="outline" className="w-full" asChild>
                 <Link href="#" onClick={() => setActiveTab("subjects")}>
-                  Ver Todos os Assuntos
+                  Ver Todas as Matérias
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>

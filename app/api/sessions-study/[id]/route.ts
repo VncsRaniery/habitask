@@ -27,14 +27,17 @@ export async function GET(request: Request) {
     });
 
     if (!studySession) {
-      return NextResponse.json({ error: "Session not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Sessão não encontrada" },
+        { status: 404 }
+      );
     }
 
     return NextResponse.json(studySession);
   } catch (error) {
-    console.error("Failed to fetch session:", error);
+    console.error("Falha ao buscar sessão:", error);
     return NextResponse.json(
-      { error: "Failed to fetch session" },
+      { error: "Falha ao buscar sessão" },
       { status: 500 }
     );
   }
@@ -42,24 +45,14 @@ export async function GET(request: Request) {
 
 export async function PUT(request: Request) {
   try {
-    const session = await auth();
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
-    }
-
-    const { searchParams } = new URL(request.url);
-    const id = searchParams.get("id");
-
+    const id = request.url.split("/").pop();
     if (!id) {
       return NextResponse.json({ error: "ID é obrigatório" }, { status: 400 });
     }
 
     const data = await request.json();
-    const studySession = await db.studySession.update({
-      where: {
-        id: id,
-        userId: session.user.id,
-      },
+    const session = await db.studySession.update({
+      where: { id },
       data: {
         title: data.title,
         description: data.description,
@@ -71,52 +64,30 @@ export async function PUT(request: Request) {
         subject: true,
       },
     });
-    return NextResponse.json(studySession);
+    return NextResponse.json(session);
   } catch (error) {
-    console.error("Failed to update session:", error);
-    return NextResponse.json(
-      { error: "Failed to update session" },
-      { status: 500 }
-    );
+    console.error("Falha ao atualizar sessão:", error);
+    return NextResponse.json({ error: "Falha ao atualizar sessão" }, { status: 500 });
   }
 }
 
 export async function DELETE(request: Request) {
   try {
-    const session = await auth();
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
-    }
+    const url = new URL(request.url);
+    const studySessionId = url.pathname.split("/").pop();
 
-    const { searchParams } = new URL(request.url);
-    const id = searchParams.get("id");
-
-    if (!id) {
+    if (!studySessionId) {
       return NextResponse.json({ error: "ID é obrigatório" }, { status: 400 });
     }
 
-    const studySession = await db.studySession.findUnique({
-      where: {
-        id: id,
-        userId: session.user.id,
-      },
-    });
-
-    if (!studySession) {
-      return NextResponse.json({ error: "Session not found" }, { status: 404 });
-    }
-
     await db.studySession.delete({
-      where: {
-        id: id,
-        userId: session.user.id,
-      },
+      where: { id: studySessionId },
     });
-    return NextResponse.json({ message: "Session deleted successfully" });
+    return NextResponse.json({ message: "Sessão deletada com sucesso" });
   } catch (error) {
-    console.error("Failed to delete session:", error);
+    console.error("Falha ao deletar sessão:", error);
     return NextResponse.json(
-      { error: "Failed to delete session" },
+      { error: "Falha ao deletar sessão" },
       { status: 500 }
     );
   }

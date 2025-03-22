@@ -64,16 +64,16 @@ export default function StudyPlanner() {
       })
 
       if (!response.ok) {
-        throw new Error("Falha ao adicionar o assunto")
+        throw new Error("Falha ao adicionar a matéria")
       }
 
       const newSubject = await response.json()
       setSubjects((prev) => [newSubject, ...prev])
-      toast.success("Assunto adicionado com sucesso")
+      toast.success("Matéria adicionada com sucesso")
       return true
     } catch (error) {
-      console.error("Erro ao adicionar o assunto:", error)
-      toast.error("Falha ao adicionar o assunto")
+      console.error("Erro ao adicionar a matéria:", error)
+      toast.error("Falha ao adicionar a matéria")
       return false
     }
   }
@@ -109,14 +109,14 @@ export default function StudyPlanner() {
       })
 
       if (!response.ok) {
-        throw new Error("Falha ao deletar o assunto")
+        throw new Error("Falha ao deletar a matéria")
       }
 
       setSubjects((prev) => prev.filter((subject) => subject.id !== id))
-      toast.success("Assunto deletado com sucesso")
+      toast.success("Matéria deletada com sucesso")
     } catch (error) {
-      console.error("Erro ao deletar o assunto:", error)
-      toast.error("Falha ao deletar o assunto")
+      console.error("Erro ao deletar a matéria:", error)
+      toast.error("Falha ao deletar a matéria")
     }
   }
 
@@ -131,7 +131,7 @@ export default function StudyPlanner() {
       })
 
       if (!response.ok) {
-        throw new Error("Falha ao atualizar o assunto")
+        throw new Error("Falha ao atualizar a matéria")
       }
 
       const updated = await response.json()
@@ -140,11 +140,11 @@ export default function StudyPlanner() {
           subject.id === updated.id ? updated : subject
         )
       )
-      toast.success("Assunto atualizado com sucesso")
+      toast.success("Matéria atualizada com sucesso")
       return true
     } catch (error) {
-      console.error("Erro ao atualizar o assunto:", error)
-      toast.error("Falha ao atualizar o assunto")
+      console.error("Erro ao atualizar a matéria:", error)
+      toast.error("Falha ao atualizar a matéria")
       return false
     }
   }
@@ -193,7 +193,7 @@ export default function StudyPlanner() {
               {activeTab === "subjects" && (
                 <Button onClick={() => setIsSubjectDialogOpen(true)} className="bg-primary hover:bg-primary/90">
                   <PlusCircle className="mr-2 h-4 w-4" />
-                  Adicionar Assunto
+                  Adicionar Matéria
                 </Button>
               )}
               {activeTab === "professors" && (
@@ -221,7 +221,7 @@ export default function StudyPlanner() {
                   className="flex items-center gap-2 rounded-lg data-[state=active]:bg-background"
                 >
                   <BookOpen className="h-4 w-4" />
-                  <span className="hidden sm:inline">Assuntos</span>
+                  <span className="hidden sm:inline">Matérias</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="professors"
