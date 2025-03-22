@@ -6,11 +6,9 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { format, parseISO, isToday, isTomorrow, isThisWeek } from "date-fns";
 import {
@@ -139,7 +137,6 @@ export default function DashboardTab({
     )
     .slice(0, 3);
 
-  // Get recent resources
   const recentResources = resources
     .sort(
       (a, b) =>
@@ -188,24 +185,6 @@ export default function DashboardTab({
                 currículo
               </p>
             </CardContent>
-            <CardFooter>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  const tabsElement =
-                    document.querySelector('[role="tablist"]');
-                  const subjectsTab = tabsElement?.querySelector(
-                    '[data-value="subjects"]'
-                  );
-                  if (subjectsTab instanceof HTMLElement) {
-                    subjectsTab.click();
-                  }
-                }}
-              >
-                Ver Todos
-              </Button>
-            </CardFooter>
           </Card>
 
           <Card className="bg-card/50 backdrop-blur-sm">
@@ -226,24 +205,6 @@ export default function DashboardTab({
                 {stats.completionRate.toFixed(0)}% de taxa de conclusão
               </p>
             </CardContent>
-            <CardFooter>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  const tabsElement =
-                    document.querySelector('[role="tablist"]');
-                  const sessionsTab = tabsElement?.querySelector(
-                    '[data-value="sessions"]'
-                  );
-                  if (sessionsTab instanceof HTMLElement) {
-                    sessionsTab.click();
-                  }
-                }}
-              >
-                Ver Todos
-              </Button>
-            </CardFooter>
           </Card>
 
           <Card className="bg-card/50 backdrop-blur-sm">
@@ -259,24 +220,6 @@ export default function DashboardTab({
                 {stats.totalResources === 1 ? "Recurso" : "Recursos"} carregados
               </p>
             </CardContent>
-            <CardFooter>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  const tabsElement =
-                    document.querySelector('[role="tablist"]');
-                  const resourcesTab = tabsElement?.querySelector(
-                    '[data-value="resources"]'
-                  );
-                  if (resourcesTab instanceof HTMLElement) {
-                    resourcesTab.click();
-                  }
-                }}
-              >
-                View All
-              </Button>
-            </CardFooter>
           </Card>
 
           <Card className="bg-card/50 backdrop-blur-sm">
@@ -291,24 +234,6 @@ export default function DashboardTab({
                 registrados
               </p>
             </CardContent>
-            <CardFooter>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  const tabsElement =
-                    document.querySelector('[role="tablist"]');
-                  const professorsTab = tabsElement?.querySelector(
-                    '[data-value="professors"]'
-                  );
-                  if (professorsTab instanceof HTMLElement) {
-                    professorsTab.click();
-                  }
-                }}
-              >
-                View All
-              </Button>
-            </CardFooter>
           </Card>
         </div>
       </motion.div>
@@ -426,15 +351,6 @@ export default function DashboardTab({
                         {format(new Date(resource.createdAt), "MMM d, yyyy")}
                       </p>
                     </div>
-                    <Button size="sm" variant="outline" asChild>
-                      <a
-                        href={resource.fileUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        Visualizar
-                      </a>
-                    </Button>
                   </div>
                 ))}
               </div>
@@ -449,9 +365,9 @@ export default function DashboardTab({
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle>Subject Overview</CardTitle>
+                <CardTitle>Visão Geral das Disciplinas</CardTitle>
                 <CardDescription>
-                  Your academic curriculum at a glance
+                  Seu currículo acadêmico em um olhada
                 </CardDescription>
               </div>
               <BookOpen className="h-5 w-5 text-muted-foreground" />
@@ -463,9 +379,10 @@ export default function DashboardTab({
                 <div className="rounded-full bg-primary/10 p-3 mb-3">
                   <BookOpen className="h-6 w-6 text-primary" />
                 </div>
-                <p className="text-sm font-medium">No subjects yet</p>
+                <p className="text-sm font-medium">Nenhuma disciplina ainda</p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Add your first subject to get started with your study planner.
+                  Adicione sua primeira disciplina para começar a usar o seu
+                  planeador de estudo.
                 </p>
               </div>
             ) : (
