@@ -75,46 +75,44 @@ export default function RoutineManager() {
     const now = new Date();
     const lastReset = new Date(lastResetDate);
 
-    if (now.getDay() !== 0 || isSameDay(now, lastReset)) {
-      return;
-    }
+    if (now.getDay() === 0 && !isSameDay(now, lastReset)) {
+      try {
+        const completedRoutines = routines.filter((routine) => routine.completed);
+        
+        if (completedRoutines.length === 0) {
+          setLastResetDate(now.toISOString());
+          return;
+        }
 
-    try {
-      const completedRoutines = routines.filter((routine) => routine.completed);
-      
-      if (completedRoutines.length === 0) {
+        const resetPromises = completedRoutines.map((routine) =>
+          fetch(`/api/routines/${routine.id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ ...routine, completed: false }),
+          })
+        );
+
+        await Promise.all(resetPromises);
+
+        setRoutines((prev) =>
+          prev.map((routine) => ({ ...routine, completed: false }))
+        );
+
         setLastResetDate(now.toISOString());
-        return;
+        setResetFailed(false);
+        
+        toast.success("Rotinas semanais redefinidas", {
+          description: `${completedRoutines.length} rotina(s) foram redefinidas para a nova semana.`,
+        });
+      } catch (error) {
+        const message =
+          error instanceof Error ? error.message : "Falha ao redefinir rotinas";
+        setError(message);
+        setResetFailed(true);
+        toast.error("Falha ao redefinir rotinas", {
+          description: message,
+        });
       }
-
-      const resetPromises = completedRoutines.map((routine) =>
-        fetch(`/api/routines/${routine.id}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ...routine, completed: false }),
-        })
-      );
-
-      await Promise.all(resetPromises);
-
-      setRoutines((prev) =>
-        prev.map((routine) => ({ ...routine, completed: false }))
-      );
-
-      setLastResetDate(now.toISOString());
-      setResetFailed(false);
-      
-      toast.success("Rotinas semanais redefinidas", {
-        description: `${completedRoutines.length} rotina(s) foram redefinidas para a nova semana.`,
-      });
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Falha ao redefinir rotinas";
-      setError(message);
-      setResetFailed(true);
-      toast.error("Falha ao redefinir rotinas", {
-        description: message,
-      });
     }
   }, [lastResetDate, routines, setLastResetDate]);
 

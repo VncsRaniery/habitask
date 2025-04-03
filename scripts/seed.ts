@@ -8,16 +8,52 @@ const prisma = new PrismaClient();
 async function main() {
   const userId = "UserID do usuário";
 
+  // Clean up existing data
   await prisma.task.deleteMany({
     where: {
       userId: userId,
     },
   });
 
-  console.log(
-    "Banco de dados limpo para o usuário! Inserindo novas tarefas..."
-  );
+  await prisma.routineItem.deleteMany({
+    where: {
+      userId: userId,
+    },
+  });
 
+  await prisma.sessionPomodoro.deleteMany({
+    where: {
+      userId: userId,
+    },
+  });
+
+  await prisma.studySession.deleteMany({
+    where: {
+      userId: userId,
+    },
+  });
+
+  await prisma.studyResource.deleteMany({
+    where: {
+      userId: userId,
+    },
+  });
+
+  await prisma.subject.deleteMany({
+    where: {
+      userId: userId,
+    },
+  });
+
+  await prisma.professor.deleteMany({
+    where: {
+      userId: userId,
+    },
+  });
+
+  console.log("Banco de dados limpo! Inserindo novos dados...");
+
+  // Create tasks
   await prisma.task.createMany({
     data: [
       {
@@ -204,23 +240,7 @@ async function main() {
     ],
   });
 
-  console.log("Novas tarefas inseridas com sucesso!");
-  await createRoutineItems(userId);
-}
-
-async function createRoutineItems(userId: string) {
-  console.log("Limpeza dos dados antigos de rotina...");
-
-  // Limpeza dos dados de rotina do usuário
-  await prisma.routineItem.deleteMany({
-    where: {
-      userId: userId,
-    },
-  });
-
-  console.log("Dados antigos de rotina limpos! Inserindo novas rotinas...");
-
-  // Adiciona novos itens de rotina
+  // Create routine items
   await prisma.routineItem.createMany({
     data: [
       /*============================ Domingo =============================*/
@@ -228,215 +248,344 @@ async function createRoutineItems(userId: string) {
         title: "Leitura e estudos",
         dayOfWeek: 0, // Domingo
         time: "07:00",
-        completed: false,
+        completed: true,
         userId,
       },
       {
-        title: "Leitura e estudos",
-        dayOfWeek: 0, // Domingo
-        time: "07:00",
-        completed: false,
+        title: "Exercícios físicos",
+        dayOfWeek: 0,
+        time: "08:30",
+        completed: true,
         userId,
       },
       {
-        title: "Leitura e estudos",
-        dayOfWeek: 0, // Domingo
-        time: "07:00",
-        completed: false,
+        title: "Planejamento da semana",
+        dayOfWeek: 0,
+        time: "10:00",
+        completed: true,
         userId,
       },
       {
-        title: "Leitura e estudos",
-        dayOfWeek: 0, // Domingo
-        time: "07:00",
+        title: "Tempo com família",
+        dayOfWeek: 0,
+        time: "14:00",
         completed: false,
         userId,
       },
       /*============================ Segunda-feira =============================*/
       {
         title: "Exercício Matinal",
-        dayOfWeek: 1, // Segunda-feira
-        time: "07:00",
+        dayOfWeek: 1,
+        time: "06:30",
+        completed: true,
+        userId,
+      },
+      {
+        title: "Revisão de tarefas",
+        dayOfWeek: 1,
+        time: "08:00",
+        completed: true,
+        userId,
+      },
+      {
+        title: "Estudo de programação",
+        dayOfWeek: 1,
+        time: "14:00",
         completed: false,
         userId,
       },
       {
-        title: "Exercício Matinal",
-        dayOfWeek: 1, // Segunda-feira
-        time: "07:00",
-        completed: false,
-        userId,
-      },
-      {
-        title: "Exercício Matinal",
-        dayOfWeek: 1, // Segunda-feira
-        time: "07:00",
-        completed: false,
-        userId,
-      },
-      {
-        title: "Exercício Matinal",
-        dayOfWeek: 1, // Segunda-feira
-        time: "07:00",
+        title: "Leitura noturna",
+        dayOfWeek: 1,
+        time: "21:00",
         completed: false,
         userId,
       },
       /*============================ Terça-feira =============================*/
       {
-        title: "Reunião de Planejamento",
-        dayOfWeek: 2, // Terça-feira
-        time: "10:00",
-        completed: false,
+        title: "Meditação",
+        dayOfWeek: 2,
+        time: "06:00",
+        completed: true,
         userId,
       },
       {
         title: "Reunião de Planejamento",
-        dayOfWeek: 2, // Terça-feira
-        time: "11:30",
-        completed: false,
+        dayOfWeek: 2,
+        time: "10:00",
+        completed: true,
         userId,
       },
       {
         title: "Almoço",
-        dayOfWeek: 2, // Terça-feira
+        dayOfWeek: 2,
         time: "12:30",
-        completed: false,
+        completed: true,
         userId,
       },
       {
-        title: "Leitura e estudos",
-        dayOfWeek: 2, // Terça-feira
-        time: "14:30",
-        completed: false,
-        userId,
-      },
-      {
-        title: "Exercício Matinal",
-        dayOfWeek: 2, // Terça-feira
-        time: "15:30",
+        title: "Estudo de inglês",
+        dayOfWeek: 2,
+        time: "19:00",
         completed: false,
         userId,
       },
       /*============================ Quarta-feira =============================*/
       {
+        title: "Exercícios físicos",
+        dayOfWeek: 3,
+        time: "06:30",
+        completed: true,
+        userId,
+      },
+      {
         title: "Reunião de Equipe",
-        dayOfWeek: 3, // Quarta-feira
+        dayOfWeek: 3,
         time: "14:00",
         completed: false,
         userId,
       },
       {
-        title: "Reunião de Equipe",
-        dayOfWeek: 3, // Quarta-feira
-        time: "14:00",
+        title: "Estudo de matemática",
+        dayOfWeek: 3,
+        time: "16:00",
         completed: false,
         userId,
       },
       {
-        title: "Reunião de Equipe",
-        dayOfWeek: 3, // Quarta-feira
-        time: "14:00",
-        completed: false,
-        userId,
-      },
-      {
-        title: "Reunião de Equipe",
-        dayOfWeek: 3, // Quarta-feira
-        time: "14:00",
+        title: "Tempo livre",
+        dayOfWeek: 3,
+        time: "20:00",
         completed: false,
         userId,
       },
       /*============================ Quinta-feira =============================*/
       {
+        title: "Leitura matinal",
+        dayOfWeek: 4,
+        time: "06:00",
+        completed: true,
+        userId,
+      },
+      {
         title: "Estudo de Inglês",
-        dayOfWeek: 4, // Quinta-feira
+        dayOfWeek: 4,
         time: "19:00",
         completed: false,
         userId,
       },
       {
-        title: "Estudo de Inglês",
-        dayOfWeek: 4, // Quinta-feira
-        time: "19:00",
+        title: "Exercícios físicos",
+        dayOfWeek: 4,
+        time: "20:30",
         completed: false,
         userId,
       },
       {
-        title: "Estudo de Inglês",
-        dayOfWeek: 4, // Quinta-feira
-        time: "19:00",
-        completed: false,
-        userId,
-      },
-      {
-        title: "Estudo de Inglês",
-        dayOfWeek: 4, // Quinta-feira
-        time: "19:00",
+        title: "Planejamento do dia seguinte",
+        dayOfWeek: 4,
+        time: "21:30",
         completed: false,
         userId,
       },
       /*============================ Sexta-feira =============================*/
       {
-        title: "Exercício Noturno",
-        dayOfWeek: 5, // Sexta-feira
-        time: "18:00",
+        title: "Exercício Matinal",
+        dayOfWeek: 5,
+        time: "06:30",
+        completed: false,
+        userId,
+      },
+      {
+        title: "Revisão semanal",
+        dayOfWeek: 5,
+        time: "10:00",
         completed: false,
         userId,
       },
       {
         title: "Exercício Noturno",
-        dayOfWeek: 5, // Sexta-feira
+        dayOfWeek: 5,
         time: "18:00",
         completed: false,
         userId,
       },
       {
-        title: "Exercício Noturno",
-        dayOfWeek: 5, // Sexta-feira
-        time: "18:00",
-        completed: false,
-        userId,
-      },
-      {
-        title: "Exercício Noturno",
-        dayOfWeek: 5, // Sexta-feira
-        time: "18:00",
+        title: "Tempo com amigos",
+        dayOfWeek: 5,
+        time: "20:00",
         completed: false,
         userId,
       },
       /*============================ Sábado =============================*/
       {
-        title: "Estudo de Tecnologias",
-        dayOfWeek: 6, // Sábado
-        time: "09:00",
+        title: "Descanso",
+        dayOfWeek: 6,
+        time: "07:00",
         completed: false,
         userId,
       },
       {
         title: "Estudo de Tecnologias",
-        dayOfWeek: 6, // Sábado
+        dayOfWeek: 6,
         time: "09:00",
         completed: false,
         userId,
       },
       {
-        title: "Estudo de Tecnologias",
-        dayOfWeek: 6, // Sábado
-        time: "09:00",
+        title: "Atividades ao ar livre",
+        dayOfWeek: 6,
+        time: "14:00",
         completed: false,
         userId,
       },
       {
-        title: "Estudo de Tecnologias",
-        dayOfWeek: 6, // Sábado
-        time: "09:00",
+        title: "Reflexão semanal",
+        dayOfWeek: 6,
+        time: "20:00",
         completed: false,
         userId,
       },
     ],
   });
 
-  console.log("Novas rotinas inseridas com sucesso!");
+  // Create professors
+  const professor1 = await prisma.professor.create({
+    data: {
+      name: "Dr. Silva",
+      email: "silva@universidade.edu",
+      phone: "(11) 99999-9999",
+      userId,
+    },
+  });
+
+  const professor2 = await prisma.professor.create({
+    data: {
+      name: "Prof. Santos",
+      email: "santos@universidade.edu",
+      phone: "(11) 88888-8888",
+      userId,
+    },
+  });
+
+  // Create subjects
+  const subject1 = await prisma.subject.create({
+    data: {
+      name: "Programação Web",
+      description: "Desenvolvimento de aplicações web modernas",
+      color: "#4f46e5",
+      professorId: professor1.id,
+      userId,
+    },
+  });
+
+  const subject2 = await prisma.subject.create({
+    data: {
+      name: "Banco de Dados",
+      description: "Fundamentos e práticas de banco de dados",
+      color: "#10b981",
+      professorId: professor2.id,
+      userId,
+    },
+  });
+
+  // Create study resources
+  await prisma.studyResource.createMany({
+    data: [
+      {
+        name: "Apresentação React",
+        description: "Slides sobre fundamentos do React",
+        fileType: "pdf",
+        subjectId: subject1.id,
+        fileContent: Buffer.from("Sample PDF content"),
+        userId,
+      },
+      {
+        name: "Exercícios SQL",
+        description: "Lista de exercícios práticos de SQL",
+        fileType: "pdf",
+        subjectId: subject2.id,
+        fileContent: Buffer.from("Sample PDF content"),
+        userId,
+      },
+    ],
+  });
+
+  // Create study sessions
+  await prisma.studySession.createMany({
+    data: [
+      {
+        title: "Introdução ao React",
+        description: "Estudo dos fundamentos do React",
+        startTime: new Date("2025-03-01T09:00:00Z"),
+        endTime: new Date("2025-03-01T11:00:00Z"),
+        subjectId: subject1.id,
+        completed: false,
+        userId,
+      },
+      {
+        title: "Normalização de Dados",
+        description: "Estudo sobre normalização de banco de dados",
+        startTime: new Date("2025-03-02T14:00:00Z"),
+        endTime: new Date("2025-03-02T16:00:00Z"),
+        subjectId: subject2.id,
+        completed: false,
+        userId,
+      },
+    ],
+  });
+
+  // Create pomodoro sessions
+  await prisma.sessionPomodoro.createMany({
+    data: [
+      {
+        type: "pomodoro",
+        startTime: new Date("2025-03-01T09:00:00Z"),
+        endTime: new Date("2025-03-01T09:25:00Z"),
+        isCompleted: true,
+        duration: 25,
+        extraTime: 0,
+        pauseCount: 0,
+        totalPauseTime: 0,
+        userId,
+      },
+      {
+        type: "shortBreak",
+        startTime: new Date("2025-03-01T09:25:00Z"),
+        endTime: new Date("2025-03-01T09:30:00Z"),
+        isCompleted: true,
+        duration: 5,
+        extraTime: 0,
+        pauseCount: 0,
+        totalPauseTime: 0,
+        userId,
+      },
+      {
+        type: "pomodoro",
+        startTime: new Date("2025-03-01T09:30:00Z"),
+        endTime: new Date("2025-03-01T09:55:00Z"),
+        isCompleted: true,
+        duration: 25,
+        extraTime: 0,
+        pauseCount: 1,
+        totalPauseTime: 2,
+        userId,
+      },
+      {
+        type: "longBreak",
+        startTime: new Date("2025-03-01T09:55:00Z"),
+        endTime: new Date("2025-03-01T10:10:00Z"),
+        isCompleted: true,
+        duration: 15,
+        extraTime: 0,
+        pauseCount: 0,
+        totalPauseTime: 0,
+        userId,
+      },
+    ],
+  });
+
+  console.log("Dados inseridos com sucesso!");
 }
 
 main()
